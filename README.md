@@ -17,6 +17,8 @@ Cada ejercicio tiene una funcion definida en `tp1/tp1.go` que vas tenes que impl
 
 La funcion `BuscarMasBarato` retorna una interfaz llamada `Producto`, esa interfaz tiene metodos definidos. Vas a tener que definir un tipo que cumpla con la definicion de esa interfaz para poder resolver el ejercicio.
 
+![](images/tp1.jpeg)
+
 ### ¿Cómo probar tu solución?
 Cada una de las funciones definidas en `tp1.go` tiene una `func` escrita en `tp1_test.go` que actúa como *test* de esa función. Ya tenemos un conjunto de casos identificados y escritos en los tests que validan que tu codigo haga lo que corresponde.  
 
