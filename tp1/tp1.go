@@ -1,3 +1,3 @@
 package tp1
 
-type Tienda struct{}
+type Tiendas map[string][]Producto

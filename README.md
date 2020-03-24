@@ -3,10 +3,11 @@
 ## TP1
 El objetivo de este TP es que practiques como iterar slices, utilizar mapas, definir metodos, correr tests y mucho mas!
 
-Los ejercicios para el TP1 se encuentran en `tp1/tp1.go`. Como input siempre vas a recibir una matriz que contiene la informacion acerca de las ventas de un super mercado.
+Los ejercicios para el TP1 se encuentran en `tp1/tp1.go`. Como input siempre vas a recibir un mapa que contiene el nombre de un supemercado como clave y un arreglo de los productos que ese supermercado tiene.
 
-* Sumar: en este ejercicio recibis como input una matriz de informacion acerca de ventas
-* Average: en este 
+* CalcularPrecios: dada una lista de ids de productos la funcion deberia calcular cual seria el precio total de todos los productos para cada uno de los supermercados,
+* Promedio: dado el id de un producto la funcion deberia calcular cual es el precio promedio de ese producto utilizando la data de todos los supermercados,
+* BuscarMasBarato: recibe el id de un producto y deberia retornar cual es el supermercado que lo vende mas barato y a cuanto lo vende.
 
 #### Como probar tu solucion
 Cada una de las funciones definidas en `tp1.go` tiene una function escrita en `tp1_test.go` que actua como *test* de esa funcion. Ya tenemos un conjunto de casos identificados y escritos en los tests que validan que tu funcion ejecute como corresponde.  
@@ -14,7 +15,7 @@ Para validar tus soluciones, podes ejecutar los siguientes comandos estando para
 ```
 # correr los tests de la funcion sumar. Aca podrian cambiar
 # `Sumar` por el nombre de la funcion que estan probando en el momento
-go test -run=TestTienda_Sumar
+go test -run=TestTienda_CalcularPrecios
 
 # correr los tests de todas las funciones
 go test tp1_test.go
@@ -22,5 +23,5 @@ go test tp1_test.go
 
 Si quieren tener mas informacion de los tests, por ejemplo saber cuales escenarios fallaron, pueden correr el comando con el flag `-v`:
 ```
-go test -v -run=TestTienda_Sumar
+go test -v -run=TestTienda_CalcularPrecios
 ```
