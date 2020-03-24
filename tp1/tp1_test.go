@@ -73,13 +73,13 @@ func TestTienda_Promedio(t *testing.T) {
 		nombre     string
 		productos  Productos
 		idProducto int
-		output     int
+		output     float64
 	}{
 		{
 			nombre:     "calcula el promedio correcto",
 			productos:  productos,
 			idProducto: 3,
-			output:     4912,
+			output:     4912.636363636364,
 		},
 		{
 			nombre:     "da cero cuando el producto no existe",
@@ -93,7 +93,7 @@ func TestTienda_Promedio(t *testing.T) {
 		t.Run(test.nombre, func(t *testing.T) {
 			if resultado := test.productos.Promedio(test.idProducto); resultado != test.output {
 				fmt.Println(resultado)
-				t.Errorf("Promedio retorno %d, se esperaba %d", resultado, test.output)
+				t.Errorf("Promedio retorno %f, se esperaba %f", resultado, test.output)
 			}
 		})
 	}

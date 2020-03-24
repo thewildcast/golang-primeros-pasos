@@ -63,6 +63,16 @@ func stringtoint(str string) int {
 	return i
 }
 
+func stringtofloat(str string) float64 {
+	i, err := strconv.ParseFloat(str, 64)
+	if err != nil {
+		// handle error
+		fmt.Println(err)
+		os.Exit(2)
+	}
+	return i
+}
+
 func valuesofmap(carritos map[string]Carrito) []Carrito {
 	values := make([]Carrito, 0, len(carritos))
 	for _, v := range carritos {
@@ -92,12 +102,12 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 
 // Promedio recibe el id de un producto y retorna el precio promedio
 // de ese producto usando los precios de todos los supermercados.
-func (p Productos) Promedio(idProducto int) int {
-	sumaPrecios := 0
-	cantidadProductos := 0
+func (p Productos) Promedio(idProducto int) float64 {
+	sumaPrecios := 0.0
+	cantidadProductos := 0.0
 	for _, v := range p {
 		if stringtoint(v[PRODUCT_ID]) == idProducto {
-			sumaPrecios += stringtoint(v[PRECIO])
+			sumaPrecios += stringtofloat(v[PRECIO])
 			cantidadProductos++
 		}
 	}
