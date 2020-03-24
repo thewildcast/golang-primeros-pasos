@@ -2,14 +2,10 @@ package tp1
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/rand"
 	"os"
 )
-
-type Producto struct {
-	ID     int `json:"id"`
-	Precio int `json:"precio"`
-}
 
 var (
 	Supermercados = []string{
@@ -28,15 +24,11 @@ var (
 )
 
 func GenerarProductos(archivo string) {
-	productos := map[string][]Producto{}
+	productos := [][]string{}
 
 	for _, nombre := range Supermercados {
-		productos[nombre] = []Producto{}
 		for i := 0; i < 50; i++ {
-			productos[nombre] = append(productos[nombre], Producto{
-				ID:     i,
-				Precio: rand.Intn(12000),
-			})
+			productos = append(productos, []string{nombre, fmt.Sprintf("%d", i), fmt.Sprintf("%d", rand.Intn(12000))})
 		}
 
 	}
@@ -45,6 +37,7 @@ func GenerarProductos(archivo string) {
 	if err != nil {
 		panic(err)
 	}
+	defer f.Close()
 
 	b, err := json.Marshal(productos)
 	if err != nil {
@@ -56,13 +49,14 @@ func GenerarProductos(archivo string) {
 	}
 }
 
-func LeerProductos(archivo string) (map[string][]Producto, error) {
+func LeerProductos(archivo string) ([][]string, error) {
 	f, err := os.Open(archivo)
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 
-	productos := map[string][]Producto{}
+	productos := [][]string{}
 	if err = json.NewDecoder(f).Decode(&productos); err != nil {
 		return nil, err
 	}

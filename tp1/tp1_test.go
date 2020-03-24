@@ -13,15 +13,15 @@ func TestTienda_CalcularPrecios(t *testing.T) {
 	}
 
 	casos := []struct {
-		nombre  string
-		tiendas Tiendas
-		input   []int
-		precios map[string]int
+		nombre    string
+		productos Productos
+		input     []int
+		precios   map[string]int
 	}{
 		{
-			nombre:  "calcula la suma de precios correcta",
-			tiendas: productos,
-			input:   []int{1, 2},
+			nombre:    "calcula la suma de precios correcta",
+			productos: productos,
+			input:     []int{1, 2},
 			precios: map[string]int{
 				"Target":             8536,
 				"Coto":               3923,
@@ -37,16 +37,16 @@ func TestTienda_CalcularPrecios(t *testing.T) {
 			},
 		},
 		{
-			nombre:  "da cero cuando no hay productos",
-			tiendas: make(Tiendas, 0),
-			input:   []int{},
-			precios: map[string]int{},
+			nombre:    "da cero cuando no hay productos",
+			productos: make(Productos, 0),
+			input:     []int{},
+			precios:   map[string]int{},
 		},
 	}
 
 	for _, test := range casos {
 		t.Run(test.nombre, func(t *testing.T) {
-			carritos := test.tiendas.CalcularPrecios(test.input...)
+			carritos := test.productos.CalcularPrecios(test.input...)
 			if len(carritos) != len(test.precios) {
 				t.Errorf("CalcularPrecios retorno %d supermercados, se esperaban %d", len(carritos), len(test.precios))
 			}
@@ -71,19 +71,19 @@ func TestTienda_Promedio(t *testing.T) {
 
 	casos := []struct {
 		nombre     string
-		tiendas    Tiendas
+		productos  Productos
 		idProducto int
 		output     int
 	}{
 		{
 			nombre:     "calcula el promedio correcto",
-			tiendas:    productos,
+			productos:  productos,
 			idProducto: 3,
 			output:     4912,
 		},
 		{
 			nombre:     "da cero cuando el producto no existe",
-			tiendas:    productos,
+			productos:  productos,
 			idProducto: 101,
 			output:     0,
 		},
@@ -91,7 +91,7 @@ func TestTienda_Promedio(t *testing.T) {
 
 	for _, test := range casos {
 		t.Run(test.nombre, func(t *testing.T) {
-			if resultado := test.tiendas.Promedio(test.idProducto); resultado != test.output {
+			if resultado := test.productos.Promedio(test.idProducto); resultado != test.output {
 				fmt.Println(resultado)
 				t.Errorf("Promedio retorno %d, se esperaba %d", resultado, test.output)
 			}
@@ -107,34 +107,36 @@ func TestTienda_BuscarMasBarato(t *testing.T) {
 
 	casos := []struct {
 		nombre    string
-		tiendas   Tiendas
+		productos Productos
 		id        int
-		resultado Producto
+		precio    int
 		existe    bool
 	}{
 		{
 			nombre:    "retorna el producto correcto cuando existe",
-			tiendas:   productos,
+			productos: productos,
 			id:        2,
-			resultado: Producto{ID: 2, Precio: 1509},
+			precio:    1509,
 			existe:    true,
 		},
 		{
 			nombre:    "retorna falso cuando el producto no existe",
-			tiendas:   productos,
+			productos: productos,
 			id:        101,
-			resultado: Producto{},
+			precio:    0,
 			existe:    false,
 		},
 	}
 
 	for _, test := range casos {
 		t.Run(test.nombre, func(t *testing.T) {
-			resultado, existe := test.tiendas.BuscarMasBarato(test.id)
+			resultado, existe := test.productos.BuscarMasBarato(test.id)
 			fmt.Println(resultado)
 			switch {
-			case !reflect.DeepEqual(resultado, test.resultado):
-				t.Errorf("BuscarMasBarato retorno producto %+v, se esperaba %+v\n", resultado, test.resultado)
+			case resultado.Precio() != test.precio:
+				t.Errorf("BuscarMasBarato retorno precio %d, se esperaba %d", resultado.Precio(), test.precio)
+			case resultado.ID() != test.id:
+				t.Errorf("BuscarMasBarato retorno id %d, se esperaba %d", resultado.ID(), test.id)
 			case existe != test.existe:
 				t.Errorf("BuscarMasBarato retorno existe en %v, se esperaba %v\n", existe, test.existe)
 			}

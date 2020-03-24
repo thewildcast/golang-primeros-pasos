@@ -1,20 +1,25 @@
 package tp1
 
-type Tiendas map[string][]Producto
+type Producto interface {
+	ID() int
+	Precio() int
+}
+
+type Productos [][]string
 
 type Carrito struct {
 	Tienda string
 	Precio int
 }
 
-func (t Tiendas) CalcularPrecios(ids ...int) []Carrito {
+func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 	return nil
 }
 
-func (t Tiendas) Promedio(idProducto int) int {
+func (p Productos) Promedio(idProducto int) int {
 	return 0
 }
 
-func (t Tiendas) BuscarMasBarato(idProducto int) (Producto, bool) {
-	return Producto{}, false
+func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
+	return nil, false
 }
