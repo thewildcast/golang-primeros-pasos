@@ -10,12 +10,12 @@ Para los ejercicios de este TP vamos a estar usando un dataset que contiene un c
 ]
 ```
 
-Cada ejercicio tiene una funcion definida en `tp1/tp1.go` que vas tenes que implementar para que los tests de esa funcion, definidos en `tp1/tp1_test.go`, pueden pasar exitosamente. Estas son las consignas:
-* **CalcularPrecios**: Dada una lista de ids de productos la función debería calcular cuál sería el precio total de todos los productos para cada uno de los supermercados. Basicamente, armar un "carrito" para cada supermercado que se encuentra e indicar cuanto saldria comprar esos items en ese super mercado.
-* **Promedio**: Dado el id de un producto la función debería calcular cuál es el precio promedio de ese producto utilizando la data de todos los supermercados.
-* **BuscarMasBarato**: Recibe el ID de un producto y debería retornar cuál es el supermercado que lo vende más barato y a cuánto lo vende.
+Cada ejercicio tiene una funcion definida en `tp1/tp1.go` que vas a tener que implementar para que sus tests, definidos en `tp1/tp1_test.go`, pasen exitosamente. Estas son las consignas:
+* **CalcularPrecios**: Dada una lista de ids de productos la función debería calcular cuál sería el precio total de todos los productos para cada uno de los supermercados. Basicamente, armar un "carrito" para cada super mercado que se encuentra e indicar cuanto saldria comprar esos items en ese super mercado,
+* **Promedio**: Dado el id de un producto la función debería calcular cuál es el precio promedio de ese producto utilizando la data de todos los supermercados,
+* **BuscarMasBarato**: Recibe el ID de un producto y debería retornar cuál es el super mercado que lo vende más barato y a cuánto lo vende.
 
-La funcion `BuscarMasBarato` retorna una interfaz llamada `Producto`, esa interfaz tiene metodos definidos. Vas a tener que definir un tipo que cumpla con la definicion de esa interfaz para poder resolver el ejercicio.
+La funcion `BuscarMasBarato` retorna una interfaz llamada `Producto`. Vas a tener que definir algun tipo que cumpla con la definicion de esa interfaz para poder resolver el ejercicio.
 
 ![](images/tp1.jpeg)
 
