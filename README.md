@@ -1,16 +1,24 @@
 # Primeros pasos en Golang
 
 ## TP1
-El objetivo de este TP es que practiques cómo iterar slices, utilizar mapas, definir métodos, correr tests y mucho más!
+El objetivo de este TP es que practiques cómo iterar slices, mapas, definir métodos, correr tests, user interfaces  y más!
 
-Los ejercicios para el TP1 se encuentran en `tp1/tp1.go`. Como input siempre vas a recibir un mapa que contiene el nombre de un supemercado como clave y un arreglo de los productos que ése supermercado tiene.
+Para los ejercicios de este TP vamos a estar usando un dataset que contiene un conjunto de productos formados de la siguiente manera:
+```
+[
+	["dia", "1", "234"]
+]
+```
 
-* CalcularPrecios: Dada una lista de IDs de productos la función debería calcular cuál sería el precio total de todos los productos para cada uno de los supermercados.
-* Promedio: Dado el ID de un producto la función debería calcular cuál es el precio promedio de ese producto utilizando la data de todos los supermercados.
-* BuscarMasBarato: Recibe el ID de un producto y debería retornar cuál es el supermercado que lo vende más barato y a cuánto lo vende.
+Cada ejercicio tiene una funcion definida en `tp1/tp1.go` que vas tenes que implementar para que los tests de esa funcion, definidos en `tp1/tp1_test.go`, pueden pasar exitosamente. Estas son las consignas:
+* **CalcularPrecios**: Dada una lista de ids de productos la función debería calcular cuál sería el precio total de todos los productos para cada uno de los supermercados. Basicamente, armar un "carrito" para cada supermercado que se encuentra e indicar cuanto saldria comprar esos items en ese super mercado.
+* **Promedio**: Dado el id de un producto la función debería calcular cuál es el precio promedio de ese producto utilizando la data de todos los supermercados.
+* **BuscarMasBarato**: Recibe el ID de un producto y debería retornar cuál es el supermercado que lo vende más barato y a cuánto lo vende.
 
-#### ¿Cómo probar tu solución?
-Cada una de las funciones definidas en `tp1.go` tiene una `func` escrita en `tp1_test.go` que actúa como *test* de esa función. Ya tenemos un conjunto de casos identificados y escritos en los tests que validan que tu función se ejecute como corresponde.  
+La funcion `BuscarMasBarato` retorna una interfaz llamada `Producto`, esa interfaz tiene metodos definidos. Vas a tener que definir un tipo que cumpla con la definicion de esa interfaz para poder resolver el ejercicio.
+
+### ¿Cómo probar tu solución?
+Cada una de las funciones definidas en `tp1.go` tiene una `func` escrita en `tp1_test.go` que actúa como *test* de esa función. Ya tenemos un conjunto de casos identificados y escritos en los tests que validan que tu codigo haga lo que corresponde.  
 
 Para validar tus soluciones, podés ejecutar los siguientes comandos parándote en la carpeta de `tp1`:
 
