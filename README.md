@@ -8,10 +8,6 @@ Los ejercicios para el TP1 se encuentran en `tp1/tp1.go`. Como input siempre vas
 * CalcularPrecios: Dada una lista de IDs de productos la función debería calcular cuál sería el precio total de todos los productos para cada uno de los supermercados.
 * Promedio: Dado el ID de un producto la función debería calcular cuál es el precio promedio de ese producto utilizando la data de todos los supermercados.
 * BuscarMasBarato: Recibe el ID de un producto y debería retornar cuál es el supermercado que lo vende más barato y a cuánto lo vende.
-||||||| merged common ancestors
-* CalcularPrecios: dada una lista de ids de productos la funcion deberia calcular cual seria el precio total de todos los productos para cada uno de los supermercados,
-* Promedio: dado el id de un producto la funcion deberia calcular cual es el precio promedio de ese producto utilizando la data de todos los supermercados,
-* BuscarMasBarato: recibe el id de un producto y deberia retornar cual es el supermercado que lo vende mas barato y a cuanto lo vende.
 
 #### ¿Cómo probar tu solución?
 Cada una de las funciones definidas en `tp1.go` tiene una `func` escrita en `tp1_test.go` que actúa como *test* de esa función. Ya tenemos un conjunto de casos identificados y escritos en los tests que validan que tu función se ejecute como corresponde.  
