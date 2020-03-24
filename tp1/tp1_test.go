@@ -7,7 +7,7 @@ import (
 )
 
 func TestTienda_CalcularPrecios(t *testing.T) {
-	productos, err := LeerProductos("data.json")
+	productos, err := LeerProductos("productos.json")
 	if err != nil {
 		t.Fatalf("no se puedo leer archivo de datos: %s", err)
 	}
@@ -64,7 +64,7 @@ func TestTienda_CalcularPrecios(t *testing.T) {
 }
 
 func TestTienda_Promedio(t *testing.T) {
-	productos, err := LeerProductos("data.json")
+	productos, err := LeerProductos("productos.json")
 	if err != nil {
 		t.Fatalf("no se puedo leer archivo de datos: %s", err)
 	}
@@ -100,7 +100,7 @@ func TestTienda_Promedio(t *testing.T) {
 }
 
 func TestTienda_BuscarMasBarato(t *testing.T) {
-	productos, err := LeerProductos("data.json")
+	productos, err := LeerProductos("productos.json")
 	if err != nil {
 		t.Fatalf("no se puedo leer archivo de datos: %s", err)
 	}

@@ -8,6 +8,7 @@ import (
 )
 
 var (
+	// Supermercados contiene una lista de super mercados conocidos.
 	Supermercados = []string{
 		"Dia",
 		"Carrefour",
@@ -23,6 +24,8 @@ var (
 	}
 )
 
+// GenerarProductos genere una lista de listas de productos
+// para cada supermercado con un precio aleatorio.
 func GenerarProductos(archivo string) {
 	productos := [][]string{}
 
@@ -49,6 +52,9 @@ func GenerarProductos(archivo string) {
 	}
 }
 
+// LeerProductos abre el archivo especificado y carga los productos
+// en una lista de listas de strings. Si no se puede abrir el archivo,
+// el archivo no es json o no existe retorna un error.
 func LeerProductos(archivo string) ([][]string, error) {
 	f, err := os.Open(archivo)
 	if err != nil {
