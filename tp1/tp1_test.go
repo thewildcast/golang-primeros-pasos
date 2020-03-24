@@ -15,26 +15,48 @@ func TestTienda_CalcularPrecios(t *testing.T) {
 		nombre  string
 		tiendas Tiendas
 		input   []int
-		output  []Carrito
+		precios map[string]int
 	}{
 		{
 			nombre:  "calcula la suma de precios correcta",
 			tiendas: productos,
-			input:   []int{},
-			output:  []Carrito{},
+			input:   []int{1, 2},
+			precios: map[string]int{
+				"Target":             8536,
+				"Coto":               3923,
+				"Dia":                15734,
+				"Disco":              8866,
+				"Jumbo":              10194,
+				"Macro":              20559,
+				"Nini":               12053,
+				"SuperVea":           8195,
+				"Wallmart":           10539,
+				"Whole Foods Market": 12785,
+				"Carrefour":          6910,
+			},
 		},
 		{
 			nombre:  "da cero cuando no hay productos",
 			tiendas: make(Tiendas, 0),
 			input:   []int{},
-			output:  nil,
+			precios: map[string]int{},
 		},
 	}
 
 	for _, test := range casos {
 		t.Run(test.nombre, func(t *testing.T) {
-			if resultado := test.tiendas.CalcularPrecios(test.input...); !reflect.DeepEqual(resultado, test.output) {
-				t.Errorf("CalcularPrecios retorno %+v, se esperaba %+v\n", resultado, test.output)
+			carritos := test.tiendas.CalcularPrecios(test.input...)
+			if len(carritos) != len(test.precios) {
+				t.Errorf("CalcularPrecios retorno %d supermercados, se esperaban %d", len(carritos), len(test.precios))
+			}
+
+			resultado := map[string]int{}
+			for _, carrito := range carritos {
+				resultado[carrito.Tienda] = carrito.Precio
+			}
+
+			if !reflect.DeepEqual(resultado, test.precios) {
+				t.Errorf("CalcularPrecios retorna precios incorrectos %+v, se esperaban %+v", resultado, test.precios)
 			}
 		})
 	}
