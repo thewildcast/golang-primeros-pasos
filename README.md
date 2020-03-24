@@ -14,7 +14,7 @@ Cada una de las funciones definidas en `tp1.go` tiene una function escrita en `t
 Para validar tus soluciones, podes ejecutar los siguientes comandos estando parado/a en la carpeta de `tp1`:
 ```
 # correr los tests de la funcion sumar. Aca podrian cambiar
-# `Sumar` por el nombre de la funcion que estan probando en el momento
+# `CalcularPrecios` por el nombre de la funcion que estan probando en el momento
 go test -run=TestTienda_CalcularPrecios
 
 # correr los tests de todas las funciones
