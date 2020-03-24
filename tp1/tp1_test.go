@@ -1,6 +1,7 @@
 package tp1
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -72,13 +73,13 @@ func TestTienda_Promedio(t *testing.T) {
 		nombre     string
 		tiendas    Tiendas
 		idProducto int
-		output     float64
+		output     int
 	}{
 		{
 			nombre:     "calcula el promedio correcto",
 			tiendas:    productos,
 			idProducto: 3,
-			output:     0,
+			output:     4912,
 		},
 		{
 			nombre:     "da cero cuando el producto no existe",
@@ -91,7 +92,8 @@ func TestTienda_Promedio(t *testing.T) {
 	for _, test := range casos {
 		t.Run(test.nombre, func(t *testing.T) {
 			if resultado := test.tiendas.Promedio(test.idProducto); resultado != test.output {
-				t.Errorf("Promedio retorno %f, se esperaba %f\n", resultado, test.output)
+				fmt.Println(resultado)
+				t.Errorf("Promedio retorno %d, se esperaba %d", resultado, test.output)
 			}
 		})
 	}
@@ -114,7 +116,7 @@ func TestTienda_BuscarMasBarato(t *testing.T) {
 			nombre:    "retorna el producto correcto cuando existe",
 			tiendas:   productos,
 			id:        2,
-			resultado: Producto{},
+			resultado: Producto{ID: 2, Precio: 1509},
 			existe:    true,
 		},
 		{
@@ -129,6 +131,7 @@ func TestTienda_BuscarMasBarato(t *testing.T) {
 	for _, test := range casos {
 		t.Run(test.nombre, func(t *testing.T) {
 			resultado, existe := test.tiendas.BuscarMasBarato(test.id)
+			fmt.Println(resultado)
 			switch {
 			case !reflect.DeepEqual(resultado, test.resultado):
 				t.Errorf("BuscarMasBarato retorno producto %+v, se esperaba %+v\n", resultado, test.resultado)

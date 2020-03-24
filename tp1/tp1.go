@@ -11,7 +11,7 @@ func (t Tiendas) CalcularPrecios(ids ...int) []Carrito {
 	return nil
 }
 
-func (t Tiendas) Promedio(idProducto int) float64 {
+func (t Tiendas) Promedio(idProducto int) int {
 	return 0
 }
 
