@@ -27,7 +27,7 @@ Para validar tus soluciones, podés ejecutar los siguientes comandos parándote 
 ```
 # correr los tests de la funcion sumar. Aca podrian cambiar
 # `CalcularPrecios` por el nombre de la funcion que estan probando en el momento
-go test -run=TestTienda_CalcularPrecios
+go test -run=TestProductos_CalcularPrecios
 
 # Correr los tests de todas las funciones
 go test tp1_test.go
@@ -35,5 +35,5 @@ go test tp1_test.go
 
 Si quieren tener más información de los tests, por ejemplo saber cuáles escenarios fallaron, pueden correr el comando con el flag `-v`:
 ```
-go test -v -run=TestTienda_CalcularPrecios
+go test -v -run=TestProductos_CalcularPrecios
 ```
