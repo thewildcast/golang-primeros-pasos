@@ -28,17 +28,12 @@ type Carrito struct {
 // Retorna un slice de carritos, donde se tiene uno para cada super mercado.
 func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 
-	all, error := LeerProductos("productos.json")
 	var pricesResult []Carrito
 	var tienda string
 	collector := map[string]int{}
 	var collectedResult map[string]int
 
-	if error != nil {
-		panic("Problemas durante apertura de archivo")
-	}
-
-	for _, singleProduct := range all {
+	for _, singleProduct := range p {
 
 		for _, marketID := range ids {
 			foundID := convertStringToInt(singleProduct[1])
@@ -65,16 +60,11 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 // de ese producto usando los precios de todos los supermercados.
 func (p Productos) Promedio(idProducto int) float64 {
 
-	all, error := LeerProductos("productos.json")
 	var sumAllPrices int = 0
 	var dataLeng int = 0
 	var found bool
 
-	if error != nil {
-		panic("Problemas durante apertura de archivo")
-	}
-
-	for _, singleProduct := range all {
+	for _, singleProduct := range p {
 
 		foundID := convertStringToInt(singleProduct[1])
 
@@ -97,16 +87,11 @@ func (p Productos) Promedio(idProducto int) float64 {
 // BuscarMasBarato recibe un id de producto a buscar y te retorna
 // el producto mas barato que haya encontrado.
 func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
-	all, error := LeerProductos("productos.json")
 
 	var tmpValue int = 4294967295
 	var found bool
 
-	if error != nil {
-		panic("Problemas durante apertura de archivo")
-	}
-
-	for _, value := range all {
+	for _, value := range p {
 
 		foundPrice := convertStringToInt(value[1])
 		if foundPrice == idProducto {
