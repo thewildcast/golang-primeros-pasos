@@ -6,17 +6,16 @@ import (
 	"strconv"
 )
 
-type ProductoImpl struct {
-	tienda string
+type producto struct {
 	id     int
 	precio int
 }
 
-func (p ProductoImpl) ID() int {
+func (p producto) ID() int {
 	return p.id
 }
 
-func (p ProductoImpl) Precio() int {
+func (p producto) Precio() int {
 	return p.precio
 }
 
@@ -40,18 +39,11 @@ type Carrito struct {
 	Precio int
 }
 
-const TIENDA = 0
-const PRODUCT_ID = 1
-const PRECIO = 2
-
-func contains(product_ids []int, product_id int) bool {
-	for _, a := range product_ids {
-		if a == product_id {
-			return true
-		}
-	}
-	return false
-}
+const (
+	TIENDA = iota
+	PRODUCT_ID
+	PRECIO
+)
 
 func stringtoint(str string) int {
 	i, err := strconv.Atoi(str)
@@ -87,8 +79,14 @@ func valuesofmap(carritos map[string]Carrito) []Carrito {
 func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 	var carritos map[string]Carrito
 	carritos = make(map[string]Carrito)
+
+	uniqueIds := make(map[int]struct{})
+	for _, id := range ids {
+		uniqueIds[id] = struct{}{}
+	}
+
 	for _, v := range p {
-		if contains(ids, stringtoint(v[PRODUCT_ID])) {
+		if _, ok := uniqueIds[stringtoint(v[PRODUCT_ID])]; ok {
 			if _, ok := carritos[v[TIENDA]]; !ok {
 				carritos[v[TIENDA]] = Carrito{v[TIENDA], 0}
 			}
@@ -103,37 +101,33 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 // Promedio recibe el id de un producto y retorna el precio promedio
 // de ese producto usando los precios de todos los supermercados.
 func (p Productos) Promedio(idProducto int) float64 {
-	sumaPrecios := 0.0
+	sumaPrecios := 0
 	cantidadProductos := 0.0
 	for _, v := range p {
 		if stringtoint(v[PRODUCT_ID]) == idProducto {
-			sumaPrecios += stringtofloat(v[PRECIO])
+			sumaPrecios += stringtoint(v[PRECIO])
 			cantidadProductos++
 		}
 	}
 	if cantidadProductos > 0 {
-		return sumaPrecios / cantidadProductos
-	} else {
-		return 0
+		return float64(sumaPrecios) / cantidadProductos
 	}
+	return 0
 }
 
 // BuscarMasBarato recibe un id de producto a buscar y te retorna
 // el producto mas barato que haya encontrado.
 func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
-	var productoMasBarato = ProductoImpl{"", idProducto, 0}
+	var productoMasBarato = producto{idProducto, 0}
 	for _, v := range p {
-		if stringtoint(v[PRODUCT_ID]) == idProducto {
-			if productoMasBarato.Precio() == 0 {
-				productoMasBarato = ProductoImpl{v[TIENDA], stringtoint(v[PRODUCT_ID]), stringtoint(v[PRECIO])}
-			} else if productoMasBarato.Precio() > stringtoint(v[PRECIO]) {
-				productoMasBarato = ProductoImpl{v[TIENDA], stringtoint(v[PRODUCT_ID]), stringtoint(v[PRECIO])}
-			}
+		if stringtoint(v[PRODUCT_ID]) == idProducto && productoMasBarato.Precio() == 0 {
+			productoMasBarato = producto{stringtoint(v[PRODUCT_ID]), stringtoint(v[PRECIO])}
+		} else if stringtoint(v[PRODUCT_ID]) == idProducto && productoMasBarato.Precio() > stringtoint(v[PRECIO]) {
+			productoMasBarato = producto{stringtoint(v[PRODUCT_ID]), stringtoint(v[PRECIO])}
 		}
 	}
 	if productoMasBarato.Precio() == 0 {
 		return productoMasBarato, false
-	} else {
-		return productoMasBarato, true
 	}
+	return productoMasBarato, true
 }
