@@ -11,6 +11,19 @@ type Producto interface {
 	Precio() int
 }
 
+type ProductoMasBarato struct {
+	Id             int
+	PrecioProducto int
+}
+
+func (p ProductoMasBarato) ID() int {
+	return p.Id
+}
+
+func (p ProductoMasBarato) Precio() int {
+	return p.PrecioProducto
+}
+
 // Productos es una lista de productos donde para cada producto
 // se sabe el nombre del super mercado, el id y su precio.
 // Esta estructura se puede cargar usando la funcion LeerProductos
@@ -28,7 +41,35 @@ type Carrito struct {
 // para cada super mercado, cuanto saldria comprar esos productos ahi.
 // Retorna un slice de carritos, donde se tiene uno para cada super mercado.
 func (p Productos) CalcularPrecios(ids ...int) []Carrito {
-	return nil
+
+	carritos := []Carrito{}
+
+	listadoDeProductos, _ := LeerProductos("productos.json")
+
+	for _, supermercado := range Supermercados {
+
+		carrito := Carrito{Tienda: supermercado}
+
+		precioTotal := 0
+
+		for _, producto := range listadoDeProductos {
+
+			for _, id := range ids {
+
+				if supermercado == producto[0] && strconv.FormatInt(int64(id), 10) == producto[1] {
+
+					precioProducto, _ := strconv.Atoi(producto[2])
+					precioTotal += precioProducto
+				}
+			}
+		}
+		carrito.Precio = precioTotal
+
+		if precioTotal > 0 {
+			carritos = append(carritos, carrito)
+		}
+	}
+	return carritos
 }
 
 // Promedio recibe el id de un producto y retorna el precio promedio
@@ -53,5 +94,22 @@ func (p Productos) Promedio(idProducto int) float64 {
 // BuscarMasBarato recibe un id de producto a buscar y te retorna
 // el producto mas barato que haya encontrado.
 func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
-	return nil, false
+
+	listadoDeProductos, _ := LeerProductos("productos.json")
+
+	productoMasBarato := ProductoMasBarato{Id: idProducto, PrecioProducto: 0}
+
+	for _, producto := range listadoDeProductos {
+
+		if strconv.FormatInt(int64(idProducto), 10) == producto[1] {
+
+			precio, _ := strconv.Atoi(producto[2])
+
+			if productoMasBarato.Precio() == 0 || precio < productoMasBarato.Precio() {
+				productoMasBarato.PrecioProducto = precio
+			}
+		}
+
+	}
+	return productoMasBarato, productoMasBarato.Precio() != 0
 }
