@@ -1,5 +1,7 @@
 package tp1
 
+import "math"
+
 // Producto contiene metodos que nos permiten acceder
 // a atributos que esperamos de un Producto.
 type Producto interface {
@@ -8,7 +10,10 @@ type Producto interface {
 }
 
 // Estructura que implementara ambos metodos ID y Precio
-type productImplementation []int
+type productImplementation struct {
+	id    int
+	price int
+}
 
 // Productos es una lista de productos donde para cada producto
 // se sabe el nombre del super mercado, el id y su precio.
@@ -23,6 +28,13 @@ type Carrito struct {
 	Precio int
 }
 
+//index definition
+const (
+	SUPERMERCADO = iota
+	ID_PRODUCTO
+	PRECIO_PRODUCTO
+)
+
 // CalcularPrecios recibe un arreglo de los IDs de productos y calcula,
 // para cada super mercado, cuanto saldria comprar esos productos ahi.
 // Retorna un slice de carritos, donde se tiene uno para cada super mercado.
@@ -36,12 +48,12 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 	for _, singleProduct := range p {
 
 		for _, marketID := range ids {
-			foundID := convertStringToInt(singleProduct[1])
+			foundID := convertStringToInt(singleProduct[ID_PRODUCTO])
 			if foundID == marketID {
 
-				tienda = singleProduct[0]
+				tienda = singleProduct[SUPERMERCADO]
 
-				price := convertStringToInt(singleProduct[2])
+				price := convertStringToInt(singleProduct[PRECIO_PRODUCTO])
 
 				collectedResult = verifyAndProcess(tienda, price, collector)
 			}
@@ -66,13 +78,13 @@ func (p Productos) Promedio(idProducto int) float64 {
 
 	for _, singleProduct := range p {
 
-		foundID := convertStringToInt(singleProduct[1])
+		foundID := convertStringToInt(singleProduct[ID_PRODUCTO])
 
 		if foundID == idProducto {
 			found = true
 			dataLeng++
 
-			sumAllPrices += convertStringToInt(singleProduct[2])
+			sumAllPrices += convertStringToInt(singleProduct[PRECIO_PRODUCTO])
 
 		}
 	}
@@ -88,19 +100,19 @@ func (p Productos) Promedio(idProducto int) float64 {
 // el producto mas barato que haya encontrado.
 func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
 
-	var tmpValue int = 4294967295
+	var finalPrice int = math.MaxInt64
 	var found bool
 
 	for _, value := range p {
 
-		foundPrice := convertStringToInt(value[1])
+		foundPrice := convertStringToInt(value[ID_PRODUCTO])
 		if foundPrice == idProducto {
 
 			found = true
-			priceConverted := convertStringToInt(value[2])
+			priceConverted := convertStringToInt(value[PRECIO_PRODUCTO])
 
-			if priceConverted < tmpValue {
-				tmpValue = priceConverted
+			if priceConverted < finalPrice {
+				finalPrice = priceConverted
 			}
 		}
 	}
@@ -109,15 +121,15 @@ func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
 		return productImplementation{idProducto, 0}, found
 	}
 
-	return productImplementation{idProducto, tmpValue}, true
+	return productImplementation{id: idProducto, price: finalPrice}, true
 }
 
 //Id implementation
 func (r productImplementation) ID() int {
-	return r[0]
+	return r.id
 }
 
 //price implementation
 func (r productImplementation) Precio() int {
-	return r[1]
+	return r.price
 }
