@@ -1,5 +1,9 @@
 package tp1
 
+import (
+	"strconv"
+)
+
 // Producto contiene metodos que nos permiten acceder
 // a atributos que esperamos de un Producto.
 type Producto interface {
@@ -30,7 +34,20 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 // Promedio recibe el id de un producto y retorna el precio promedio
 // de ese producto usando los precios de todos los supermercados.
 func (p Productos) Promedio(idProducto int) float64 {
-	return 0
+
+	listadoDeProductos, _ := LeerProductos("productos.json")
+
+	var precioPromedio float64
+
+	for _, producto := range listadoDeProductos {
+
+		if strconv.FormatInt(int64(idProducto), 10) == producto[1] {
+			precio, _ := strconv.ParseFloat(producto[2], 64)
+			precioPromedio += precio
+		}
+
+	}
+	return precioPromedio / float64(len(Supermercados))
 }
 
 // BuscarMasBarato recibe un id de producto a buscar y te retorna
