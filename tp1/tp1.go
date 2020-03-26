@@ -24,6 +24,19 @@ type Carrito struct {
 	Precio int
 }
 
+type ProductoStruct struct {
+	id     int
+	precio int
+}
+
+func (p ProductoStruct) ID() int {
+	return p.id
+}
+
+func (p ProductoStruct) Precio() int {
+	return p.precio
+}
+
 // CalcularPrecios recibe un arreglo de los IDs de productos y calcula,
 // para cada super mercado, cuanto saldria comprar esos productos ahi.
 // Retorna un slice de carritos, donde se tiene uno para cada super mercado.
@@ -66,19 +79,6 @@ func (p Productos) Promedio(idProducto int) float64 {
 		return acumulador
 	}
 	return acumulador / cant
-}
-
-type ProductoStruct struct {
-	id     int
-	precio int
-}
-
-func (p ProductoStruct) ID() int {
-	return p.id
-}
-
-func (p ProductoStruct) Precio() int {
-	return p.precio
 }
 
 // BuscarMasBarato recibe un id de producto a buscar y te retorna
