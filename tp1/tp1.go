@@ -2,9 +2,17 @@ package tp1
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 )
+
+const (
+	IDX_TIENDA = iota
+	IDX_PRODUCTO
+	IDX_PRECIO
+)
+
 // Producto contiene metodos que nos permiten acceder
 // a atributos que esperamos de un Producto.
 type Producto interface {
@@ -60,19 +68,22 @@ func castToInt(value string) int {
 // Retorna un slice de carritos, donde se tiene uno para cada super mercado.
 func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 	carritos := []Carrito{}
+	mapaCarritos := make(map[string]int)
 
 	for _, producto := range p {
-		idProducto := castToInt(producto[1])
+		idProducto := castToInt(producto[IDX_PRODUCTO])
 		if exists(idProducto, ids) {
-			existe := existeTienda(producto[0], carritos)
-			if existe < 0  {
-				carritos = append(carritos, Carrito{producto[0], castToInt(producto[2])})
+			if mapaCarritos[producto[IDX_TIENDA]] == 0 {
+				mapaCarritos[producto[IDX_TIENDA]] = castToInt(producto[IDX_PRECIO])
 			} else {
-				carritos[existe].Precio += castToInt(producto[2])
+				mapaCarritos[producto[IDX_TIENDA]] += castToInt(producto[IDX_PRECIO])
 			}
 		}
 	}
-
+	// No se si existe una mejor forma de hacer el cast de map a array
+	for tienda, total := range mapaCarritos {
+		carritos = append(carritos, Carrito{tienda, total})
+	}
 	return carritos
 }
 
@@ -88,10 +99,10 @@ func exists(idProduct int, ids []int) bool {
 // Promedio recibe el id de un producto y retorna el precio promedio
 // de ese producto usando los precios de todos los supermercados.
 func (p Productos) Promedio(idProducto int) float64 {
-	precios, total := 0.0, 0.0
+	var precios, total float64
 	for _, producto := range p {
-		if castToInt(producto[1]) == idProducto {
-			precios += float64(castToInt(producto[2]))
+		if castToInt(producto[IDX_PRODUCTO]) == idProducto {
+			precios += float64(castToInt(producto[IDX_PRECIO]))
 			total++
 		}
 	}
@@ -104,17 +115,12 @@ func (p Productos) Promedio(idProducto int) float64 {
 // BuscarMasBarato recibe un id de producto a buscar y te retorna
 // el producto mas barato que haya encontrado.
 func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
-	productoMasBarato := producto{idProducto, 0}
+	productoMasBarato := producto{idProducto, math.MaxInt64}
 	masBarato := false
-	for indice, producto := range p {
-		if indice == 0 {
+	for _, producto := range p {
+		if castToInt(producto[1]) == idProducto && productoMasBarato.precio > castToInt(producto[2]){
 			productoMasBarato.precio = castToInt(producto[2])
-			masBarato = false
-		} else {
-			if castToInt(producto[1]) == idProducto && productoMasBarato.precio > castToInt(producto[2]){
-				productoMasBarato.precio = castToInt(producto[2])
-				masBarato = true
-			}
+			masBarato = true
 		}
 	}
 	if !masBarato {
