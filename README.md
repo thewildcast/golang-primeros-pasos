@@ -30,7 +30,7 @@ Para validar tus soluciones, podés ejecutar los siguientes comandos parándote 
 go test -run=TestProductos_CalcularPrecios
 
 # Correr los tests de todas las funciones
-go test tp1_test.go
+go test
 ```
 
 Si quieren tener más información de los tests, por ejemplo saber cuáles escenarios fallaron, pueden correr el comando con el flag `-v`:
