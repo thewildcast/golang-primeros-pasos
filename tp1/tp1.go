@@ -37,6 +37,12 @@ type Carrito struct {
 	Precio int
 }
 
+const (
+	TIENDA = iota
+	IDPRODUCTO
+	PRECIO
+)
+
 // CalcularPrecios recibe un arreglo de los IDs de productos y calcula,
 // para cada super mercado, cuanto saldria comprar esos productos ahi.
 // Retorna un slice de carritos, donde se tiene uno para cada super mercado.
@@ -45,15 +51,15 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 	var sliceCarrito []Carrito
 
 	for _, prod := range p {
-		for _, buscado := range ids {
-			if aux, _ := strconv.Atoi(prod[1]); aux == buscado {
-				precio, _ := strconv.Atoi(prod[2])
-				mapCarrito[prod[0]] += precio
+		for _, idProductoBuscado := range ids {
+			if idProductoArray, err := strconv.Atoi(prod[IDPRODUCTO]); idProductoArray == idProductoBuscado && err == nil {
+				precio, _ := strconv.Atoi(prod[PRECIO])
+				mapCarrito[prod[TIENDA]] += precio
 			}
 		}
 	}
 
-	if mapCarrito != nil {
+	if len(mapCarrito) > 0 {
 		for key, value := range mapCarrito {
 			sliceCarrito = append(sliceCarrito, Carrito{Tienda: key, Precio: value})
 		}
@@ -65,12 +71,12 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 // Promedio recibe el id de un producto y retorna el precio promedio
 // de ese producto usando los precios de todos los supermercados.
 func (p Productos) Promedio(idProducto int) float64 {
-	total := 0.00
-	ocurrencias := 0
+	var total float64
+	var ocurrencias int
 
-	for _, prod := range p {
-		if aux, _ := strconv.Atoi(prod[1]); aux == idProducto {
-			precio, _ := strconv.ParseFloat(prod[2], 64)
+	for _, productoArray := range p {
+		if idProductoArray, err := strconv.Atoi(productoArray[IDPRODUCTO]); idProductoArray == idProducto && err == nil {
+			precio, _ := strconv.ParseFloat(productoArray[PRECIO], 64)
 			total += precio
 			ocurrencias++
 		}
@@ -86,21 +92,25 @@ func (p Productos) Promedio(idProducto int) float64 {
 // BuscarMasBarato recibe un id de producto a buscar y te retorna
 // el producto mas barato que haya encontrado.
 func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
-	var minProducto item
-	minProducto.id = idProducto
-	existe := false
+	var masBarato item
+	masBarato.id = idProducto
+	var productoEncontrado bool
 
-	for _, prod := range p {
-		if idProd, _ := strconv.Atoi(prod[1]); idProd == idProducto {
-			precio, _ := strconv.Atoi(prod[2])
+	for _, productoArray := range p {
+		idProductoArray, errIDProducto := strconv.Atoi(productoArray[IDPRODUCTO])
 
-			if precio < minProducto.Precio() || !existe {
-				minProducto.supermercado, minProducto.precio = prod[0], precio
+		if idProductoArray == idProducto && errIDProducto == nil {
+			precio, errPrecio := strconv.Atoi(productoArray[PRECIO])
+			if errPrecio == nil {
+
+				if precio < masBarato.Precio() || !productoEncontrado {
+					masBarato.supermercado, masBarato.precio = productoArray[TIENDA], precio
+				}
+
+				productoEncontrado = true
 			}
-
-			existe = true
 		}
 	}
 
-	return minProducto, existe
+	return masBarato, productoEncontrado
 }
