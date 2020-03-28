@@ -6,15 +6,13 @@ type pares struct {
 	a, b int
 }
 
-func sumarThread(jobs chan pares, resultadosChan chan int, sumFunc sumador) {
-	for p := range jobs {
-		if p.a != 0 && p.b != 0 {
-			resultadosChan <- sumFunc(p.a, p.b)
-		} else if p.a != 0 {
-			resultadosChan <- p.a
-		} else if p.b != 0 {
-			resultadosChan <- p.b
-		}
+func sumarThread(p pares, resultadosChan chan int, sumFunc sumador) {
+	if p.a != 0 && p.b != 0 {
+		resultadosChan <- sumFunc(p.a, p.b)
+	} else if p.a != 0 {
+		resultadosChan <- p.a
+	} else if p.b != 0 {
+		resultadosChan <- p.b
 	}
 }
 
@@ -23,29 +21,24 @@ func sumarLista(numeros []int, resultadoChan chan int, sumFunc sumador) {
 		numeros = append(numeros, 0)
 	}
 
-	jobs := make(chan pares, len(numeros))
 	resultadosChan := make(chan int)
 
 	for i := 0; i < len(numeros); i = i + 2 {
-		go sumarThread(jobs, resultadosChan, sumFunc)
-		jobs <- pares{a: numeros[i], b: numeros[i+1]}
+		go sumarThread(pares{a: numeros[i], b: numeros[i+1]}, resultadosChan, sumFunc)
 	}
-	close(jobs)
 
 	var resultados []int
-	for i := 0; i < len(numeros)/2; i++ {
+	for i := 0; i < len(numeros)-1; i++ {
 		r := <-resultadosChan
 		resultados = append(resultados, r)
+		if len(resultados) == 2 {
+			go sumarThread(pares{a: resultados[0], b: resultados[1]}, resultadosChan, sumFunc)
+			resultados = resultados[:0]
+		}
 	}
 	close(resultadosChan)
 
-	if len(resultados) > 2 {
-		sumarLista(resultados, resultadoChan, sumFunc)
-	} else if len(resultados) == 2 {
-		resultadoChan <- sumFunc(resultados[0], resultados[1])
-	} else if len(resultados) == 1 {
-		resultadoChan <- resultados[0]
-	}
+	resultadoChan <- resultados[0]
 }
 
 // SumarLista recibe una function sumadora y una lista
