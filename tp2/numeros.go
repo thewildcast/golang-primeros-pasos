@@ -1,27 +1,11 @@
 package tp2
 
 import (
-	"encoding/json"
 	"math/rand"
-	"os"
 	"time"
 )
 
 type sumador func(a, b int) int
-
-func LeerNumeros(archivo string) ([]int, error) {
-	f, err := os.Open(archivo)
-	if err != nil {
-		return nil, err
-	}
-
-	numeros := []int{}
-	if err := json.NewDecoder(f).Decode(&numeros); err != nil {
-		return nil, err
-	}
-
-	return numeros, nil
-}
 
 func RandomNumbers(ceiling, total int) []int {
 	numbers := []int{}
