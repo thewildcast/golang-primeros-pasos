@@ -50,7 +50,7 @@ La consiga es:
 * **SumarLista**: Dada una lista de enteros la funcion deberia calcular la suma de todos ellos y retornar un error en caso de que no se reciban numeros.
 
 ### ¿Cómo probar tu solución?
-Al igual que en el TP1, definimos tests para la funcion `SumarLista` que estan escritos en `tp2/tp2_test.go`. Una vez que termines tu solucion podes correr el siguiente comando estan parado/a en la carpeta `tp2`:
+Al igual que en el TP1, definimos tests para la función `SumarLista` que estan escritos en `tp2/tp2_test.go`. Una vez que termines tu solución podés correr el siguiente comando estan parado/a en la carpeta `tp2`:
 ```
 go test -run=TestSumarLista
 ```
