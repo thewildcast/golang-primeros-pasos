@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+type sumador func(a, b int) int
+
 func LeerNumeros(archivo string) ([]int, error) {
 	f, err := os.Open(archivo)
 	if err != nil {

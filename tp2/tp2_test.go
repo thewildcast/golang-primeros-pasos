@@ -32,7 +32,7 @@ func TestSumarLista(t *testing.T) {
 
 	for _, test := range cases {
 		t.Run(test.nombre, func(t *testing.T) {
-			resultado, err := SumarLista(test.input...)
+			resultado, err := SumarLista(Sumar, test.input...)
 			switch {
 			case resultado != test.resultado:
 				t.Errorf("SumarLista retorno %d, se esperaba %d", resultado, test.resultado)
