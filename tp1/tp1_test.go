@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestTienda_CalcularPrecios(t *testing.T) {
+func TestProductos_CalcularPrecios(t *testing.T) {
 	productos, err := LeerProductos("productos.json")
 	if err != nil {
 		t.Fatalf("no se puedo leer archivo de datos: %s", err)
@@ -63,7 +63,7 @@ func TestTienda_CalcularPrecios(t *testing.T) {
 	}
 }
 
-func TestTienda_Promedio(t *testing.T) {
+func TestProductos_Promedio(t *testing.T) {
 	productos, err := LeerProductos("productos.json")
 	if err != nil {
 		t.Fatalf("no se puedo leer archivo de datos: %s", err)
@@ -99,7 +99,7 @@ func TestTienda_Promedio(t *testing.T) {
 	}
 }
 
-func TestTienda_BuscarMasBarato(t *testing.T) {
+func TestProductos_BuscarMasBarato(t *testing.T) {
 	productos, err := LeerProductos("productos.json")
 	if err != nil {
 		t.Fatalf("no se puedo leer archivo de datos: %s", err)
@@ -131,7 +131,6 @@ func TestTienda_BuscarMasBarato(t *testing.T) {
 	for _, test := range casos {
 		t.Run(test.nombre, func(t *testing.T) {
 			resultado, existe := test.productos.BuscarMasBarato(test.id)
-			fmt.Println(resultado)
 			switch {
 			case resultado.Precio() != test.precio:
 				t.Errorf("BuscarMasBarato retorno precio %d, se esperaba %d", resultado.Precio(), test.precio)
