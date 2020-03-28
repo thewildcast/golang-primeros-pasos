@@ -39,11 +39,13 @@ func sumarLista(numeros []int, resultadoChan chan int, sumFunc sumador) {
 	}
 	close(resultadosChan)
 
-	if len(resultados) != 2 {
+	if len(resultados) > 2 {
 		sumarLista(resultados, resultadoChan, sumFunc)
-		return
+	} else if len(resultados) == 2 {
+		resultadoChan <- sumFunc(resultados[0], resultados[1])
+	} else if len(resultados) == 1 {
+		resultadoChan <- resultados[0]
 	}
-	resultadoChan <- sumFunc(resultados[0], resultados[1])
 }
 
 // SumarLista recibe una function sumadora y una lista
