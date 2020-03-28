@@ -5,5 +5,5 @@ package tp2
 // los numeros. Si la suma no se puede realizar por algun motivo
 // se retorna un error.
 func SumarLista(sumFunc sumador, numeros ...int) (int, error) {
-	return 0, nil
+	return sumarFunc(numeros[0], numeros[1]), nil
 }
