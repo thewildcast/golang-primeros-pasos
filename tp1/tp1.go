@@ -24,12 +24,12 @@ type Carrito struct {
 
 const (
 	SHOP_NAME_INDEX = 0
-	PROD_ID_INDEX = 1
-	PRICE_INDEX = 2
+	PROD_ID_INDEX   = 1
+	PRICE_INDEX     = 2
 )
 
 type Article struct {
-	Id int
+	Id    int
 	Price int
 }
 
@@ -47,23 +47,23 @@ func (a Article) Precio() int {
 func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 	var carrito []Carrito
 	var m = make(map[string]int)
-	for _, productId := range(ids) {
-		for _, productEntry:=range(p) {
+	for _, productId := range ids {
+		for _, productEntry := range p {
 			productEntryId, err := strconv.Atoi(productEntry[PROD_ID_INDEX])
-			if(err!=nil) {
+			if err != nil {
 				// error handling, not a number?
 			}
-			if(productEntryId==productId) {
+			if productEntryId == productId {
 				productEntryPrice, err := strconv.Atoi(productEntry[PRICE_INDEX])
-				if(err!=nil) {
+				if err != nil {
 					// error handling, not a number?
 				}
-				m[productEntry[SHOP_NAME_INDEX]]+=productEntryPrice
+				m[productEntry[SHOP_NAME_INDEX]] += productEntryPrice
 			}
 		}
 	}
-	for key, value := range(m) {
-		carrito = append(carrito, Carrito{Tienda:key, Precio: value})
+	for key, value := range m {
+		carrito = append(carrito, Carrito{Tienda: key, Precio: value})
 	}
 	return carrito
 }
@@ -73,21 +73,21 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 func (p Productos) Promedio(idProducto int) float64 {
 	var counter int
 	var sum int
-	for _, productEntry := range(p) {
+	for _, productEntry := range p {
 		productEntryId, err := strconv.Atoi(productEntry[PROD_ID_INDEX])
-                if(err!=nil) {
-                        // error handling, not a number?
-                }
-                productEntryPrice, err := strconv.Atoi(productEntry[PRICE_INDEX])
-                if(err!=nil) {
-                        // error handling, not a number?
-                }
-		if(productEntryId==idProducto) {
-			sum+=productEntryPrice
+		if err != nil {
+			// error handling, not a number?
+		}
+		productEntryPrice, err := strconv.Atoi(productEntry[PRICE_INDEX])
+		if err != nil {
+			// error handling, not a number?
+		}
+		if productEntryId == idProducto {
+			sum += productEntryPrice
 			counter++
 		}
 	}
-	if(counter == 0) {
+	if counter == 0 {
 		return 0.0
 	}
 	return float64(sum) / float64(counter)
@@ -98,16 +98,16 @@ func (p Productos) Promedio(idProducto int) float64 {
 func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
 	var minPriceProduct Article = Article{Id: idProducto, Price: 0}
 	found := false
-	for _, productEntry := range(p) {
+	for _, productEntry := range p {
 		productEntryId, err := strconv.Atoi(productEntry[PROD_ID_INDEX])
-		if(err!=nil) {
+		if err != nil {
 			// error handling, not a number?
-                }
+		}
 		productEntryPrice, err := strconv.Atoi(productEntry[PRICE_INDEX])
-		if(err!=nil) {
+		if err != nil {
 			// error handling, not a number?
-                }
-		if(productEntryId==idProducto && (productEntryPrice <= minPriceProduct.Precio() || !found)) {
+		}
+		if productEntryId == idProducto && (productEntryPrice <= minPriceProduct.Precio() || !found) {
 			minPriceProduct = Article{Id: productEntryId, Price: productEntryPrice}
 			found = true
 		}
