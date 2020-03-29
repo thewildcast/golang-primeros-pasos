@@ -30,10 +30,27 @@ Para validar tus soluciones, podés ejecutar los siguientes comandos parándote 
 go test -run=TestProductos_CalcularPrecios
 
 # Correr los tests de todas las funciones
-go test tp1_test.go
+go test
 ```
 
 Si quieren tener más información de los tests, por ejemplo saber cuáles escenarios fallaron, pueden correr el comando con el flag `-v`:
 ```
 go test -v -run=TestProductos_CalcularPrecios
+```
+
+## TP2
+El objetivo de este TP es que aprendas como usar las capacidades de concurrencia que nos ofrece Go. Vas a usar channels y goroutines para poder ejecutar y coordinar eficientemente una suma de muchos numeros.
+
+Para realizar la suma de dos numeros ya tenes una funcion a tu disposicion `sumFunc` que recibe dos argumentos como parametro y retorna la suma. El problema es que `sumFunc` tarda una cantidad de tiempo indeterminado (pero no mayor a medio segundo) en retornarte la suma, entonces hacer una suma secuencial de muchos numeros nos puede llegar a tardar mucho tiempo. Para poder hacerla mas eficiente **es necesario usar goroutines y channels** que paralelicen estas operaciones y reduzcan el tiempo que toma sumar todo. Una forma de encarar esto seria usando semáforos y mantener una variable global de suma que cada goroutine incremente, el problema es que esto no esta acorde a uno de los [proverbios mas importantes de Go](https://go-proverbs.github.io/):
+> [Don't communicate by sharing memory, share memory by communicating](https://www.youtube.com/watch?v=PAAkCSZUG1c&t=2m48s).
+
+Ese proverbio simplemente indica que usar operadores de exclusión mutua y variables compartidas no es lo mejor que se puede hacer. No es una mala herramienta, y a veces es totalmente necesaria, pero para este caso se puede encarar la solución usando canales para la comuniación y reducir el overhead de tener que proteger la memoria manualmente.
+
+La consiga es:
+* **SumarLista**: Dada una lista de enteros la funcion deberia calcular la suma de todos ellos y retornar un error en caso de que no se reciban numeros.
+
+### ¿Cómo probar tu solución?
+Al igual que en el TP1, definimos tests para la función `SumarLista` que estan escritos en `tp2/tp2_test.go`. Una vez que termines tu solución podés correr el siguiente comando estan parado/a en la carpeta `tp2`:
+```
+go test -run=TestSumarLista
 ```
