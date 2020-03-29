@@ -1,9 +1,9 @@
 package tp2
 
-type emptyListError struct{
+type emptyListError struct {
 }
 
-func (e emptyListError) Error()string{
+func (e emptyListError) Error() string {
 	return "The list is empty"
 }
 
@@ -11,7 +11,7 @@ func concurrentSum(sumFunc sumador, numeros []int, sum chan int) {
 	if len(numeros) == 1 {
 		sum <- numeros[0]
 	}
-	if len(numeros) % 2 != 0 {
+	if len(numeros)%2 != 0 {
 		numeros = append(numeros, 0)
 	}
 
@@ -19,13 +19,13 @@ func concurrentSum(sumFunc sumador, numeros []int, sum chan int) {
 	defer close(results)
 	arr := make([]int, len(numeros)/2)
 
-	for i := 0; i<len(numeros); i+=2 {
-		go func(first int, second int, results chan int){
-			results<-sumFunc(first, second)
+	for i := 0; i < len(numeros); i += 2 {
+		go func(first int, second int, results chan int) {
+			results <- sumFunc(first, second)
 		}(numeros[i], numeros[i+1], results)
 	}
 
-	for i := 0; i<len(numeros)/2; i++ {
+	for i := 0; i < len(numeros)/2; i++ {
 		arr[i] = <-results
 	}
 
