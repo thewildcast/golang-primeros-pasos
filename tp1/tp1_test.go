@@ -18,7 +18,7 @@ func TestPromedio(t *testing.T) {
 	carrito := Carrito{}
 	result := carrito.Promedio(1)
 
-	assert.Equal(t, 22, result, "foo")
+	assert.Equal(t, 5045, result, "Expected promedio is wrong")
 }
 
 func TestBuscarMasBarato(t *testing.T) {
