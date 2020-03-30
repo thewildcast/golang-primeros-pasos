@@ -1,6 +1,8 @@
 package tp2
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // SumarLista recibe una function sumadora y una lista
 // de numeros. Usando esos parametro retorna la suma de todos
@@ -16,13 +18,16 @@ func SumarLista(sumFunc sumador, numeros ...int) (int, error) {
 	c := make(chan int)
 
 	for i := 0; i < len(numeros); i += 2 {
-		go func() {
-			if i+1 >= len(numeros) {
-				c <- numeros[i]
+		go func(index int) {
+			if index+1 >= len(numeros) {
+				c <- numeros[index]
 			} else {
-				c <- sumFunc(numeros[i], numeros[i+1])
+				c <- sumFunc(numeros[index], numeros[index+1])
 			}
-		}()
+		}(i)
+	}
+
+	for i := 0; i < len(numeros); i += 2 {
 		suma += <-c
 	}
 
