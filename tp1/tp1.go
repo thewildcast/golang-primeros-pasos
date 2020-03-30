@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	SUPER_INDEX  = 0
-	ID_INDEX     = 1
-	PRECIO_INDEX = 2
+	SUPER_INDEX = iota
+	ID_INDEX
+	PRECIO_INDEX
 )
 
 // Producto contiene metodos que nos permiten acceder
@@ -63,13 +63,14 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 				fmt.Println("not a number")
 			}
 
-			if productoId == id {
-				precioDelproducto, err := strconv.Atoi(productos[PRECIO_INDEX])
-				if err != nil {
-					fmt.Println("not a number")
-				}
-				supermercadoByPrice[productos[SUPER_INDEX]] += precioDelproducto
+			if productoId != id {
+				continue
 			}
+			precioDelproducto, err := strconv.Atoi(productos[PRECIO_INDEX])
+			if err != nil {
+				fmt.Println("not a number")
+			}
+			supermercadoByPrice[productos[SUPER_INDEX]] += precioDelproducto
 		}
 	}
 
@@ -90,11 +91,11 @@ func (p Productos) Promedio(idProducto int) float64 {
 	for _, productos := range p {
 		productoId, err := strconv.Atoi(productos[ID_INDEX])
 		if err != nil {
-			fmt.Println("not a number")
+			continue
 		}
 		precioDelproducto, err := strconv.Atoi(productos[PRECIO_INDEX])
 		if err != nil {
-			fmt.Println("not a number")
+			continue
 		}
 
 		if productoId == idProducto {
