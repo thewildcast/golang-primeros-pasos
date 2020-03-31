@@ -23,9 +23,9 @@ type Carrito struct {
 }
 
 const (
-	TIENDA_IDX = 0
-	PROD_IDX = 1
-	PRE_IDX = 2
+	TIENDA_IDX = iota
+	PROD_IDX
+	PRE_IDX
 )
 
 // CalcularPrecios recibe un arreglo de los IDs de productos y calcula,
@@ -35,24 +35,25 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 	// creo un mapa helper para buscar id sin hacer un range
 	// para cada producto, no se si es mas eficiente
 	// quisiera creer que si lo es en contraste con dos for anidados
-	var mapaIds = make(map[string]int)
+	var indeceProdIds = make(map[string]int)
 	for _, prodId := range ids {
-		mapaIds[strconv.Itoa(prodId)] = prodId
+		indeceProdIds[strconv.Itoa(prodId)] = prodId
 	}
 
-	// Inicializo el map con el valor zero de int
-	var mapa = make(map[string]int)
+	// Inicializo el mapa con el valor zero de int
+	// clave: TIENDA, valor: precio
+	var indiceTiendaPrecio = make(map[string]int)
 	for _, entrada := range p {
-		if _, found := mapaIds[entrada[PROD_IDX]]; found == true {
+		if _, found := indeceProdIds[entrada[PROD_IDX]]; found == true {
 			pPrecio, _ := strconv.Atoi(entrada[PRE_IDX])
 			// al usar el valor zero de int, no necesito revisar si el elemento
-			// en el mapa existe o no
-			mapa[entrada[TIENDA_IDX]] = mapa[entrada[TIENDA_IDX]] + pPrecio
+			// en el indiceTiendaPrecio existe o no
+			indiceTiendaPrecio[entrada[TIENDA_IDX]] = indiceTiendaPrecio[entrada[TIENDA_IDX]] + pPrecio
 		}
 	}
 
 	carritos := []Carrito{}
-	for tienda, precioSumarizado := range mapa {
+	for tienda, precioSumarizado := range indiceTiendaPrecio {
 		carritos = append(carritos, Carrito{Tienda: tienda, Precio: precioSumarizado})
 	}
 
@@ -64,7 +65,7 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 func (p Productos) Promedio(idProducto int) float64 {
 	var suma, contador int
 	for _, entrada := range p {
-		if prodId,_ := strconv.Atoi(entrada[PROD_IDX]); prodId == idProducto {
+		if prodId, _ := strconv.Atoi(entrada[PROD_IDX]); prodId == idProducto {
 			precio, _ := strconv.Atoi(entrada[PRE_IDX])
 			suma += precio
 			contador++
@@ -96,8 +97,13 @@ func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
 	var art articulo = articulo{id: idProducto}
 	var found bool = false
 	for _, entrada := range p {
-		if prodId,_ := strconv.Atoi(entrada[PROD_IDX]); prodId == idProducto {
-			if precio, _ := strconv.Atoi(entrada[PRE_IDX]); precio < art.precio || !found {
+		if prodId, _ := strconv.Atoi(entrada[PROD_IDX]); prodId == idProducto {
+			precio, err := strconv.Atoi(entrada[PRE_IDX])
+			if err != nil {
+				// si no podemos parsear, pasamos al siguiente elemento
+				continue
+			}
+			if precio < art.precio || !found {
 				art.id = prodId
 				art.precio = precio
 			}
