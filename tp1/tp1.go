@@ -4,6 +4,12 @@ import (
 	"strconv"
 )
 
+const (
+	SUPER_INDEX = iota
+	ID_INDEX
+	PRECIO_INDEX
+)
+
 // Producto contiene metodos que nos permiten acceder
 // a atributos que esperamos de un Producto.
 type Producto interface {
@@ -48,11 +54,11 @@ type Carrito struct {
 func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 	carritos := make(map[string]int)
 	for _, prod := range p {
-		p_id, _ := strconv.Atoi(prod[1])
+		p_id, _ := strconv.Atoi(prod[ID_INDEX])
 		for _, id := range ids {
 			if id == p_id {
-				precio, _ := strconv.Atoi(prod[2])
-				carritos[prod[0]] += precio
+				precio, _ := strconv.Atoi(prod[PRECIO_INDEX])
+				carritos[prod[SUPER_INDEX]] += precio
 			}
 		}
 	}
@@ -71,9 +77,9 @@ func (p Productos) Promedio(idProducto int) float64 {
 	var sum_precio int
 	var cant int
 	for _, prod := range p {
-		p_id, _ := strconv.Atoi(prod[1])
+		p_id, _ := strconv.Atoi(prod[ID_INDEX])
 		if idProducto == p_id {
-			precio, _ := strconv.Atoi(prod[2])
+			precio, _ := strconv.Atoi(prod[PRECIO_INDEX])
 			sum_precio += precio
 			cant++
 		}
@@ -92,13 +98,13 @@ func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
 	var existe bool
 	var tienda string
 	for _, prods := range p {
-		p_id, _ := strconv.Atoi(prods[1])
+		p_id, _ := strconv.Atoi(prods[ID_INDEX])
 		if idProducto == p_id {
 			existe = true
-			precio, _ := strconv.Atoi(prods[2])
+			precio, _ := strconv.Atoi(prods[PRECIO_INDEX])
 			if precio < min_price || min_price == 0 {
 				min_price = precio
-				tienda = prods[0]
+				tienda = prods[SUPER_INDEX]
 			}
 		}
 	}
