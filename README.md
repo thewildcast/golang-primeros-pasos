@@ -58,10 +58,10 @@ go test -run=TestSumarLista
 ## TP3
 El objetivo de este TP es que aprendas a usar la primitiva de `select` que te permite hacer un `switch` no deterministico sobre varios canales para poder recibir mensajes.
 
-La consigna consiste en implementar una calculadora que va a recibir sus operaciones en 4 canales distintos, 1 para cada tipo de operacion. Por ahora solo vas a implementar suma, resta, multiplicacion y division. Tambien vas a recibir un canal de corte que te va a indicar que ya deberias terminar de procesar. Los resultados los vas a escribir a otro canal que tenes que crear vos, ese canal es el que vas a retornar en la funcion. Una vez que detectaste a traves del canal de corte que no hay mas operaciones deberias cerrar el canal de resultados para indicarle a los usuarios de la funcion que ya no hay mas resultados que enviar.  
-El procesamiento deberia ser asincrono, por ende la iteracion sobre los canales de operaciones deberia correr en una goroutine aparte. Los tests que validan el comportamiento de tu funcion tienen un timeout de 1 segundo, eso quiere decir que si despues de un segundo no se cerro el canal de resultados el test va a fallar. Son operaciones simples que no toman nada de tiempo en ejecutar, 1 segundo es suficiente.
+La consigna consiste en implementar una calculadora que va a recibir sus operaciones en 4 canales distintos, 1 para cada tipo de operación. Por ahora solo vas a implementar suma, resta, multiplicación y división. También vas a recibir un canal de corte que te va a indicar que ya deberías terminar de procesar. Los resultados los vas a escribir a otro canal que tenes que crear vos, ese canal es el que vas a retornar en la función. Una vez que detectaste a través del canal de corte que no hay mas operaciones deberías cerrar el canal de resultados para indicarle a los usuarios de la función que ya no hay mas resultados que enviar.  
+El procesamiento tiene que ser asíncrono, por ende la iteración sobre los canales de operaciones debería correr en una goroutine aparte. Los tests que validan el comportamiento de tu función tienen un timeout de 1 segundo, eso quiere decir que si después de un segundo no se cerro el canal de resultados el test va a fallar. Son operaciones simples que no toman nada de tiempo en ejecutar, 1 segundo es suficiente.
 
-La funcion a implementar es `Calcular` y se encuentra en `tp3/tp3.go`.
+La función a implementar es `Calcular` y se encuentra en `tp3/tp3.go`.
 
 ### ¿Cómo probar tu solución?
 Al igual que en el TP1 y TP2, definimos tests para la función `Calcular` que estan escritos en `tp3/tp3_test.go`. Una vez que termines tu solución podés correr el siguiente comando estando parado/a en la carpeta `tp3`:
