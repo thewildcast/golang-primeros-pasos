@@ -32,4 +32,8 @@ func TestCalcular(t *testing.T) {
 			close(corte)
 		}
 	}
+
+	if i != 4 {
+		t.Errorf("se deberian haber procesado 4 operaciones, pero se procesaron %d", i)
+	}
 }
