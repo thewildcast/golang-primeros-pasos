@@ -87,8 +87,8 @@ func (p Productos) Promedio(idProducto int) float64 {
 	if err != nil {
 		return -1
 	}
-	totalPrecios := 0.0
-	countPrecios := 0.0
+	var totalPrecios float64
+	var countPrecios float64
 	for _, producto := range productos {
 		_, id, precio, err := getProducto(producto)
 		if err {
