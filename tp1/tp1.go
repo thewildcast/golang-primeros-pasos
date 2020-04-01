@@ -2,7 +2,6 @@ package tp1
 
 import (
 		"strconv"
-		 "fmt"
 )
 
 // Producto contiene metodos que nos permiten acceder
@@ -52,7 +51,7 @@ func (ip ItemProduct) Precio() int {
 // para cada super mercado, cuanto saldria comprar esos productos ahi.
 // Retorna un slice de carritos, donde se tiene uno para cada super mercado.
 func (p Productos) CalcularPrecios(ids ...int) []Carrito {
-	fmt.Println("hola")
+
 	productos := []ItemProduct{}
 	for _, pitem := range p{
 		productos = append(productos, ItemProduct{pitem[0],pitem[1],pitem[2]})
