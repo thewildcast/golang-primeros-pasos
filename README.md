@@ -68,3 +68,18 @@ Al igual que en el TP1 y TP2, definimos tests para la función `Calcular` que es
 ```
 go test -run=TestCalcular
 ```
+
+## TP4
+Este TP va a ser distinto a los demás. Ahora vas a tener que implementar un programa completo y no vas a tener tests disponibles que validen la solución. La idea de este TP es que aprendas a escribir web servers en Go desde cero y a comunicarte con APIs externas.
+
+La consigna consiste en implementar algo similar a la función `CalcularPrecios` del primer TP, solo que ahora la funcionalidad va a tener que estar expuesta a través de una API y la información de los productos la vas a obtener haciendo HTTP requests a un servicio que armamos. Tu servicio debe exponer un endpoint que acepte en el request una lista de IDs de productos y una lista de supermercados. La respuesta tiene que ser la suma de precios para cada uno de los supermercados que se pidió en formato de JSON. Si algún producto no se encuentra en algún de supermercado el servicio tiene que responder con un mensaje de error. 
+
+El servicio que retorna los productos se encuentra en `https://productos-p6pdsjmljq-uc.a.run.app` y el formato de las URLs es: `/<tienda>/productos/<id>`, por ejemplo:
+```sh
+$ curl https://productos-p6pdsjmljq-uc.a.run.app/dia/productos/1
+{"tienda":"dia","id":1,"precio":7887}
+```
+
+Los supermercados y productos que están disponibles en ese servicio son los mismos que el TP1 y se encuentran en `tp1/productos.json`. Para validar que se esta calculando correctamente el total podes usar los tests escritos en `tp1/tp1_test.go`. En particular la función `TestProductos_CalcularPrecios`, contiene el monto de cuanto sale la suma de los productos con ID 1 y 2 en cada uno de los supermercados disponibles.
+
+El código tiene que estar escrito dentro de la carpeta `tp4` y pueden utilizar paquetes para estructurar su proyecto de manera mas clara. Bonus points si la solución es muy eficiente y utiliza goroutines para obtener los productos en paralelo! :)
