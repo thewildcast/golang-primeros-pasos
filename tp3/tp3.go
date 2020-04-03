@@ -38,7 +38,7 @@ func Calcular(sumas, mults, divisiones, restas <-chan *Operandos, corte <-chan s
 
 	go func() {
 
-		for i := 0; i < 4; i++ {
+		for {
 
 			select {
 
@@ -54,9 +54,13 @@ func Calcular(sumas, mults, divisiones, restas <-chan *Operandos, corte <-chan s
 			case r := <-restas:
 				result <- &Resultado{Resultado: float64(r.A) - float64(r.B), Operacion: (RESTA)}
 
+			case <-corte:
+
+				close(result)
+				return
 			}
+
 		}
-		close(result)
 
 	}()
 
