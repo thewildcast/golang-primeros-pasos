@@ -61,13 +61,10 @@ func Calcular(sumas, mults, divisiones, restas <-chan *Operandos, corte <-chan s
 					Operacion: RESTA,
 				}
 				canal <- &res
+			case <-corte:
+				close(canal)
+				return
 			}
-		}
-	}()
-	go func() {
-		select {
-		case <-corte:
-			close(canal)
 		}
 	}()
 	return canal
