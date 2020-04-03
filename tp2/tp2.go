@@ -10,14 +10,14 @@ type par struct {
 
 const numWorkers = 8
 
-func sumWorker(id int, sumFunc sumador, pares chan par, sumas chan int) {
+func sumWorker(sumFunc sumador, pares <-chan par, sumas chan<- int) {
 	for p := range pares {
 		s := sumFunc(p.x, p.y)
 		sumas <- s
 	}
 }
 
-func sumCollector(sumas chan int, maxSumas int, pares chan par, suma chan int) {
+func sumCollector(sumas <-chan int, maxSumas int, pares chan<- par, suma chan<- int) {
 	numSumas := 0
 	for {
 		s1 := <-sumas
@@ -49,7 +49,7 @@ func SumarLista(sumFunc sumador, numeros ...int) (int, error) {
 	}
 	w := 0
 	for w < numWorkers {
-		go sumWorker(w, sumFunc, pares, sumas)
+		go sumWorker(sumFunc, pares, sumas)
 		w++
 	}
 	go sumCollector(sumas, 2*N-1, pares, suma)
