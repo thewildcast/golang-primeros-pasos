@@ -110,11 +110,7 @@ func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
 		}
 	}
 
-	if prodBarato.precio > 0 {
-		return prodBarato, true
-	} else {
-		return prodBarato, false
-	}
+	return prodBarato, prodBarato.precio > 0
 }
 
 func strToInt(s string) int {
