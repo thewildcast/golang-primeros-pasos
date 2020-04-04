@@ -42,38 +42,29 @@ func (p producto) Precio() int {
 // Retorna un slice de carritos, donde se tiene uno para cada super mercado.
 func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 
+	var carrito = []Carrito{}
+
 	// No hay ningun producto
 	if len(ids) == 0 {
 		return nil
 	}
 
-	var carritos []Carrito
-	for _, s := range Supermercados {
-		carritos = append(carritos, Carrito{
-			Tienda: s,
-		})
-	}
+	pm := map[string]int{}
 
 	for _, producto := range p {
 		for _, id := range ids {
 			if pID := strToInt(producto[1]); pID == id {
-				/* Este for no me gusta pero si utilizo un range
-				   se me va a generar una copia de carritos
-				   y no estaría acumulando los precios.
-				   Entiendo que si carritos fuese del tipo *[]Carrito
-				   podría pasar el valor por referencia
-				*/
-				for c := 0; c < len(carritos); c++ {
-					if producto[0] == carritos[c].Tienda {
-						p, _ := strconv.Atoi(producto[2])
-						carritos[c].Precio += p
-					}
-				}
+				pm[producto[0]] += strToInt(producto[2])
+				break
 			}
 		}
 	}
 
-	return carritos
+	for t, p := range pm {
+		carrito = append(carrito, Carrito{Tienda: t, Precio: p})
+	}
+
+	return carrito
 }
 
 // Promedio recibe el id de un producto y retorna el precio promedio
