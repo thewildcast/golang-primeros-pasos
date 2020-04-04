@@ -74,11 +74,13 @@ func (p Productos) Promedio(idProducto int) float64 {
 	var totalPrecio, cantProducto float64
 
 	for _, producto := range p {
-		if pID := strToInt(producto[1]); pID == idProducto {
-			pPrecio := strToFloat(producto[2], 64)
-			totalPrecio += pPrecio
-			cantProducto++
+		if pID := strToInt(producto[1]); pID != idProducto {
+			continue
 		}
+		pPrecio := strToFloat(producto[2], 64)
+		totalPrecio += pPrecio
+		cantProducto++
+
 	}
 
 	// El producto ingresado no existe
@@ -97,13 +99,14 @@ func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
 	esPrimeraIteracion := true
 
 	for _, prod := range p {
-		if pID := strToInt(prod[1]); pID == idProducto {
-			if pPrecio := strToInt(prod[2]); esPrimeraIteracion || pPrecio < prodBarato.precio {
-				if esPrimeraIteracion {
-					esPrimeraIteracion = false
-				}
-				prodBarato.precio = pPrecio
+		if pID := strToInt(prod[1]); pID != idProducto {
+			continue
+		}
+		if pPrecio := strToInt(prod[2]); esPrimeraIteracion || pPrecio < prodBarato.precio {
+			if esPrimeraIteracion {
+				esPrimeraIteracion = false
 			}
+			prodBarato.precio = pPrecio
 		}
 	}
 
