@@ -54,3 +54,32 @@ Al igual que en el TP1, definimos tests para la función `SumarLista` que estan 
 ```
 go test -run=TestSumarLista
 ```
+
+## TP3
+El objetivo de este TP es que aprendas a usar la primitiva de `select` que te permite hacer un `switch` no deterministico sobre varios canales para poder recibir mensajes.
+
+La consigna consiste en implementar una calculadora que va a recibir sus operaciones en 4 canales distintos, 1 para cada tipo de operación. Por ahora solo vas a implementar suma, resta, multiplicación y división. También vas a recibir un canal de corte que te va a indicar que ya deberías terminar de procesar. Los resultados los vas a escribir a otro canal que tenes que crear vos, ese canal es el que vas a retornar en la función. Una vez que detectaste a través del canal de corte que no hay mas operaciones deberías cerrar el canal de resultados para indicarle a los usuarios de la función que ya no hay mas resultados que enviar.  
+El procesamiento tiene que ser asíncrono, por ende la iteración sobre los canales de operaciones debería correr en una goroutine aparte. Los tests que validan el comportamiento de tu función tienen un timeout de 1 segundo, eso quiere decir que si después de un segundo no se cerro el canal de resultados el test va a fallar. Son operaciones simples que no toman nada de tiempo en ejecutar, 1 segundo es suficiente.
+
+La función a implementar es `Calcular` y se encuentra en `tp3/tp3.go`.
+
+### ¿Cómo probar tu solución?
+Al igual que en el TP1 y TP2, definimos tests para la función `Calcular` que estan escritos en `tp3/tp3_test.go`. Una vez que termines tu solución podés correr el siguiente comando estando parado/a en la carpeta `tp3`:
+```
+go test -run=TestCalcular
+```
+
+## TP4
+Este TP va a ser distinto a los demás. Ahora vas a tener que implementar un programa completo y no vas a tener tests disponibles que validen la solución. La idea de este TP es que aprendas a escribir web servers en Go desde cero y a comunicarte con APIs externas.
+
+La consigna consiste en implementar algo similar a la función `CalcularPrecios` del primer TP, solo que ahora la funcionalidad va a tener que estar expuesta a través de una API y la información de los productos la vas a obtener haciendo HTTP requests a un servicio que armamos. Tu servicio debe exponer un endpoint que acepte en el request una lista de IDs de productos y una lista de supermercados. La respuesta tiene que ser la suma de precios para cada uno de los supermercados que se pidió en formato de JSON. Si algún producto no se encuentra en algún de supermercado el servicio tiene que responder con un mensaje de error. 
+
+El servicio que retorna los productos se encuentra en `https://productos-p6pdsjmljq-uc.a.run.app` y el formato de las URLs es: `/<tienda>/productos/<id>`, por ejemplo:
+```sh
+$ curl https://productos-p6pdsjmljq-uc.a.run.app/dia/productos/1
+{"tienda":"dia","id":1,"precio":7887}
+```
+
+Los supermercados y productos que están disponibles en ese servicio son los mismos que el TP1 y se encuentran en `tp1/productos.json`. Para validar que se esta calculando correctamente el total podes usar los tests escritos en `tp1/tp1_test.go`. En particular la función `TestProductos_CalcularPrecios`, contiene el monto de cuanto sale la suma de los productos con ID 1 y 2 en cada uno de los supermercados disponibles.
+
+El código tiene que estar escrito dentro de la carpeta `tp4` y pueden utilizar paquetes para estructurar su proyecto de manera mas clara. Bonus points si la solución es muy eficiente y utiliza goroutines para obtener los productos en paralelo! :)
