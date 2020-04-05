@@ -65,13 +65,17 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 // de ese producto usando los precios de todos los supermercados.
 func (p Productos) Promedio(idProducto int) float64 {
 	carritos := p.CalcularPrecios(idProducto)
-	promedio := 0.0
-
-	for _, carrito := range carritos {
-		promedio += float64(carrito.Precio) / float64(len(carritos))
+	if len(carritos) == 0 {
+		return 0
 	}
 
-	return promedio
+	promedio := 0
+
+	for _, carrito := range carritos {
+		promedio += carrito.Precio
+	}
+
+	return float64(promedio) / float64(len(carritos))
 }
 
 type Item struct {
