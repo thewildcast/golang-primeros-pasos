@@ -25,7 +25,7 @@ func TestCalcular(t *testing.T) {
 	for res := range Calcular(sumas, mults, divisiones, restas, corte) {
 		i++
 		if res.Resultado != 6 {
-			t.Errorf("operacion de %s fallo. Se esperaba 6.0 pero retorno %.2f", res.Operacion, res.Resultado)
+			t.Errorf("operacion de %v fallo. Se esperaba 6.0 pero retorno %.2f", res.Operacion, res.Resultado)
 		}
 
 		if i == 4 {
