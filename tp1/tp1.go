@@ -87,8 +87,10 @@ func (p Productos) Promedio(idProducto int) float64 {
 
 	var prom float64
 	var suma int
+	
 
 	for i := 0; i < len(p); i++ {
+
 
 		if strconv.Itoa(idProducto) == p[i][1] {
 
