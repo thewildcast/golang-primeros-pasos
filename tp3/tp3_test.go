@@ -3,6 +3,7 @@ package tp3
 import (
 	"testing"
 	"time"
+    "log"
 )
 
 func TestCalcular(t *testing.T) {
@@ -22,13 +23,19 @@ func TestCalcular(t *testing.T) {
 	})
 
 	var i int
+
+    log.Print("MANDOOOOO inicializacion de i:",i)
+
 	for res := range Calcular(sumas, mults, divisiones, restas, corte) {
 		i++
+        log.Print("MANDOOOOO i:",i)
+
 		if res.Resultado != 6 {
 			t.Errorf("operacion de %s fallo. Se esperaba 6.0 pero retorno %.2f", res.Operacion, res.Resultado)
 		}
 
 		if i == 4 {
+            log.Print("MANDOOOOO CORTE")
 			close(corte)
 		}
 	}
