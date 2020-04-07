@@ -1,16 +1,10 @@
 package tp2
 
 import (
-	"math/rand"
 	"testing"
 )
 
 func TestSumarLista(t *testing.T) {
-
-	longInput := make([]int, 1000)
-	for i := range longInput {
-		longInput[i] = rand.Intn(10_000)
-	}
 
 	cases := []struct {
 		nombre  string
@@ -29,7 +23,7 @@ func TestSumarLista(t *testing.T) {
 		},
 		{
 			nombre:  "suma muchos numeros",
-			input:   longInput,
+			input:   RandomNumbers(10_000, 1000),
 			withErr: false,
 		},
 		{
