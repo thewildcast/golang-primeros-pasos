@@ -83,3 +83,13 @@ $ curl https://productos-p6pdsjmljq-uc.a.run.app/dia/productos/1
 Los supermercados y productos que están disponibles en ese servicio son los mismos que el TP1 y se encuentran en `tp1/productos.json`. Para validar que se esta calculando correctamente el total podes usar los tests escritos en `tp1/tp1_test.go`. En particular la función `TestProductos_CalcularPrecios`, contiene el monto de cuanto sale la suma de los productos con ID 1 y 2 en cada uno de los supermercados disponibles.
 
 El código tiene que estar escrito dentro de la carpeta `tp4` y pueden utilizar paquetes para estructurar su proyecto de manera mas clara. Bonus points si la solución es muy eficiente y utiliza goroutines para obtener los productos en paralelo! :)
+
+## TP FINAL
+La idea de este TP es que tengas que desarrollar algo bastante desafiante. Te va a llevar algo de tiempo y vas a tener que investigar bastante y leer mucho. Seguramente incluso tengas que usar paquetes de terceros, etc.
+Lo que te podemos garantizar es que después de hacer el TP vas a tener un muy buen dominio del lenguaje :)
+La propuesta es que desarrolles alguna de los siguientes 3 proyectos:
+  1. Desarrollá el juego [Snake](http://www.menet.umn.edu/~dockt036/snake.html). Idealmente lo hacés en modo terminal. Esto te va a obligar a usar paquetes, goroutines y aplicar lógica.
+  2. Desarrollá un programa que reciba funciones polinómicas, tipo `x^2+2x+8`, y las grafique. Para puntos extra podrías calcular las raíces y graficarlas y además dar la posibilidad de hacer zoom in y zoom out.
+  3. Desarrollá un loadbalancer http. La idea es que tenga un archivo de configuración (podría ser JSON o cualquier otra cosa) con nodos de backend y puerto. Cuando un request llega a alguno de los puertos configurados, se elige alguno de los nodos de backend que corresponda y se envía el request y por supuesto se debe retorna el response también. **Prestá atención a los headers**. Puntos extra si das distintos algoritmos de loadbalancing (random, round-robin, etc). Y más puntos extra si ofrecés algún tipo de rate limiting.
+  
+Obviamente el que desee consagrarse como **The Ultimate Golang Hacker** puede hacer más de 1 proyecto o todos :scream:
