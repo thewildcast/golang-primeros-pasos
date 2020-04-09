@@ -32,13 +32,13 @@ type key_prod struct {
 	ID     int
 }
 
-var productos map[key_prod]int
+var Productos map[key_prod]int
 
 func homeLinkHandler(rw http.ResponseWriter, req *http.Request) {
 	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
 	defer req.Body.Close()
 	rw.WriteHeader(200)
-	json.NewEncoder(rw).Encode(productos)
+	json.NewEncoder(rw).Encode(Productos)
 }
 
 func calcularPrecios(list_req ListReq) (map[string]int, error) {
@@ -56,7 +56,7 @@ func calcularPrecios(list_req ListReq) (map[string]int, error) {
 
 	// Get the price of the Tienda-ID if not Tienda-ID it's stack on a list
 	for _, tiendaId := range tiendasIds {
-		if val, ok := productos[tiendaId]; ok {
+		if val, ok := Productos[tiendaId]; ok {
 			carritos[tiendaId.Tienda] += val
 		} else {
 			missingIds = append(missingIds, tiendaId)
@@ -96,12 +96,11 @@ func notFoundHandler(rw http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	productos = make(map[key_prod]int)
+	Productos = make(map[key_prod]int)
 	//tiendas_full := []string{"dia", "jumbo", "supervea", "target", "wallmart", "carrefour",
 	//	"disco", "macro", "nini", "coto", "whole foods market"}
 	tiendas_test := []string{"dia", "jumbo"}
-	prods := get_products(tiendas_test)
-	fmt.Println(prods)
+	get_products(tiendas_test)
 	r := mux.NewRouter()
 	r.HandleFunc("/", homeLinkHandler)
 	r.HandleFunc("/calcular", calcularPreciosHandler).Methods("POST")
@@ -109,36 +108,37 @@ func main() {
 	http.ListenAndServe(":8080", r)
 }
 
-func get_products(tiendas []string) map[key_prod]int {
+func get_products(tiendas []string) {
 	URL := "productos-p6pdsjmljq-uc.a.run.app"
+	go func() {
+		for _, tienda := range tiendas {
+			var i int
+			base_url := path.Join(URL, tienda, "productos")
+			for {
+				url_string := path.Join(base_url, strconv.Itoa(i))
+				https := "https://"
+				url_string = fmt.Sprint(https, url_string)
+				fmt.Println(url_string)
+				resp, err := http.Get(url_string)
+				if err != nil {
+					fmt.Println(err)
+					break
+				}
+				defer resp.Body.Close()
 
-	for _, tienda := range tiendas {
-		var i int
-		base_url := path.Join(URL, tienda, "productos")
-		for {
-			url_string := path.Join(base_url, strconv.Itoa(i))
-			https := "https://"
-			url_string = fmt.Sprint(https, url_string)
-			fmt.Println(url_string)
-			resp, err := http.Get(url_string)
-			if err != nil {
-				fmt.Println(err)
-				break
+				if resp.StatusCode != http.StatusOK {
+					fmt.Println(resp.StatusCode)
+					break
+				}
+				var new_prod Producto
+				json.NewDecoder(resp.Body).Decode(&new_prod)
+
+				//Decode de Tienda-ID on as a key of product
+				kp := key_prod{Tienda: new_prod.Tienda, ID: new_prod.ID}
+				Productos[kp] = new_prod.Precio
+				i++
 			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode != http.StatusOK {
-				fmt.Println(resp.StatusCode)
-				break
-			}
-			var new_prod Producto
-			json.NewDecoder(resp.Body).Decode(&new_prod)
-
-			//Decode de Tienda-ID on as a key of product
-			kp := key_prod{Tienda: new_prod.Tienda, ID: new_prod.ID}
-			productos[kp] = new_prod.Precio
-			i++
 		}
-	}
-	return productos
+	}()
+	//return productos
 }
