@@ -5,6 +5,12 @@ import (
 	"strconv"
 )
 
+const (
+	TIENDA_IDX = iota
+	ID_IDX
+	PRECIO_IDX
+)
+
 type producto struct {
 	supermercado string
 	id           int
@@ -47,21 +53,28 @@ func (p Productos) CalcularPrecios(ids []int) []Carrito {
 
 	chango := map[string]int{}
 
-	var id string
+	mapaIds := make(map[int]string, len(ids))
+
+	for i := 0; i < len(ids); i++ {
+
+		if _, ok := mapaIds[ids[i]]; !ok {
+
+			mapaIds[ids[i]] = strconv.Itoa(ids[i])
+		}
+	}
 
 	for i := 0; i < len(p); i++ {
 
-		for _, valor := range ids {
+		id, _ := strconv.Atoi(p[i][ID_IDX])
 
-			id = strconv.Itoa(valor)
+		if _, ok := mapaIds[id]; ok {
 
-			if id == p[i][1] {
+			cadenaPrecio, err := strconv.Atoi(p[i][PRECIO_IDX])
 
-				cadenaPrecio, _ := strconv.Atoi(p[i][2])
-
-				chango[p[i][0]] = cadenaPrecio
-
+			if err != nil {
+				continue
 			}
+			chango[p[i][TIENDA_IDX]] = cadenaPrecio
 		}
 
 	}
@@ -86,22 +99,24 @@ func (p Productos) CalcularPrecios(ids []int) []Carrito {
 func (p Productos) Promedio(idProducto int) float64 {
 
 	var prom float64
-	var suma int
-	
+	var suma, cantidad int
 
 	for i := 0; i < len(p); i++ {
 
+		if strconv.Itoa(idProducto) == p[i][ID_IDX] {
 
-		if strconv.Itoa(idProducto) == p[i][1] {
+			cadenaPrecio, err := strconv.Atoi(p[i][PRECIO_IDX])
 
-			cadenaPrecio, _ := strconv.Atoi(p[i][2])
-
+			if err != nil {
+				continue
+			}
 			suma += cadenaPrecio
+			cantidad++
 		}
 
 	}
 
-	prom = float64(suma) / float64(len(p))
+	prom = float64(suma) / float64(cantidad)
 
 	return prom
 }
@@ -118,9 +133,9 @@ func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
 
 	for i := 0; i < len(p); i++ {
 
-		if strconv.Itoa(idProducto) == p[i][1] {
+		if strconv.Itoa(idProducto) == p[i][ID_IDX] {
 
-			produc[i] = p[i][2]
+			produc[i] = p[i][PRECIO_IDX]
 
 		}
 

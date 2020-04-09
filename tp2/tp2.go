@@ -1,35 +1,54 @@
 package tp2
 
+import "fmt"
 
 // SumarLista recibe una function sumadora y una lista
 // de numeros. Usando esos parametro retorna la suma de todos
 // los numeros. Si la suma no se puede realizar por algun motivo
 // se retorna un error.
+func SumarLista(sumFunc sumador, numeros ...int) (int, error) {
 
-type err struct{
-	
-}
+	var resultado, longNumeros int
 
-func (e err) Error()string{
+	longNumeros = len(numeros)
 
-	return "Hubo un error al querer realizar la operación."
-}
-
-func SumarLista(sumFunc sumador, numeros []int) (int, error) {
-		
-	if len(numeros) == 0{
-		return 0, err{}
+	if longNumeros == 0 {
+		return 0, fmt.Errorf("No se puede realizar la suma")
 	}
 
-	var restulado int
+	numerosASumar := make(chan int, longNumeros)
+	resultadoSuma := make(chan int, longNumeros)
 
-	for i:= 0; i<len(numeros); i++{
+	go GenerarSuma(numerosASumar, resultadoSuma, sumFunc)
 
-		resultado = sumFunc(numeros[i], numeros[i+1])
+	for i := 0; i < longNumeros; i++ {
+
+		numerosASumar <- numeros[i]
 	}
-	
+
+	close(numerosASumar)
+
+	for valor := range resultadoSuma {
+
+		resultado = sumFunc(resultado, valor)
+	}
+
 	return resultado, nil
 
 }
 
+//GenerarSuma recibe ambos canales, realiza la suma
+//el resultado de la suma lo guarda en resultadoSuma.
+func GenerarSuma(numerosASumar <-chan int, resultadoSuma chan<- int, sumFunc sumador) int {
 
+	var resultado int
+
+	for valor := range numerosASumar {
+
+		resultadoSuma <- sumFunc(valor, resultado)
+	}
+
+	close(resultadoSuma)
+
+	return resultado
+}
