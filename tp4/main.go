@@ -16,55 +16,100 @@ type Producto struct {
 	Precio int    `json:"precio"`
 }
 
+type ProductoMap struct {
+	Tienda string
+	ID     int
+	Precio int
+}
+
 type ListReq struct {
 	Tienda []string `json:"tienda"`
 	ID     []int    `json:"id"`
 }
 
-var productos []Producto
+type key_prod struct {
+	Tienda string
+	ID     int
+}
 
-func homeLink(rw http.ResponseWriter, req *http.Request) {
+var productos map[key_prod]int
+
+func homeLinkHandler(rw http.ResponseWriter, req *http.Request) {
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	defer req.Body.Close()
 	rw.WriteHeader(200)
 	json.NewEncoder(rw).Encode(productos)
 }
 
-func calcular_precios(list_req ListReq) map[string]int {
+func calcularPrecios(list_req ListReq) (map[string]int, error) {
 	carritos := make(map[string]int)
+	var tiendasIds []key_prod
+	var missingIds []key_prod
+	var err error
 
-	for _, prod := range productos {
-		for _, tienda_req := range list_req.Tienda {
-			if tienda_req == prod.Tienda {
-				for _, id_req := range list_req.ID {
-					if id_req == prod.ID {
-						carritos[tienda_req] += prod.Precio
-					}
-				}
-			}
+	// Build a list of Tienda ID
+	for _, tienda := range list_req.Tienda {
+		for _, id_req := range list_req.ID {
+			tiendasIds = append(tiendasIds, key_prod{tienda, id_req})
 		}
 	}
-	return carritos
+
+	// Get the price of the Tienda-ID if not Tienda-ID it's stack on a list
+	for _, tiendaId := range tiendasIds {
+		if val, ok := productos[tiendaId]; ok {
+			carritos[tiendaId.Tienda] += val
+		} else {
+			missingIds = append(missingIds, tiendaId)
+		}
+	}
+
+	//If the missing Tienda-ID is not empty throw error
+	if len(missingIds) > 0 {
+		err = fmt.Errorf("No se encotraron los valores %v", missingIds)
+	}
+
+	return carritos, err
 }
 
-func calcular_precios_handler(rw http.ResponseWriter, req *http.Request) {
+func calcularPreciosHandler(rw http.ResponseWriter, req *http.Request) {
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
 	rw.WriteHeader(200)
+	defer req.Body.Close()
 	var reqData ListReq
 	json.NewDecoder(req.Body).Decode(&reqData)
-	json.NewEncoder(rw).Encode(calcular_precios(reqData))
+	retData, err := calcularPrecios(reqData)
+	if err != nil {
+		json.NewEncoder(rw).Encode(map[string]string{
+			"Error": err.Error(),
+		})
+		return
+	}
+	json.NewEncoder(rw).Encode(retData)
+}
+
+func notFoundHandler(rw http.ResponseWriter, r *http.Request) {
+	rw.Header().Set("Content-Type", "application/json; charset=utf-8")
+	rw.WriteHeader(http.StatusNotFound)
+	json.NewEncoder(rw).Encode(map[string]interface{}{
+		"message": "request not found",
+	})
 }
 
 func main() {
+	productos = make(map[key_prod]int)
 	//tiendas_full := []string{"dia", "jumbo", "supervea", "target", "wallmart", "carrefour",
 	//	"disco", "macro", "nini", "coto", "whole foods market"}
 	tiendas_test := []string{"dia", "jumbo"}
 	prods := get_products(tiendas_test)
 	fmt.Println(prods)
-	r := mux.NewRouter().StrictSlash(true)
-	r.HandleFunc("/", homeLink)
-	r.HandleFunc("/calcular", calcular_precios_handler).Methods("POST")
+	r := mux.NewRouter()
+	r.HandleFunc("/", homeLinkHandler)
+	r.HandleFunc("/calcular", calcularPreciosHandler).Methods("POST")
+	r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 	http.ListenAndServe(":8080", r)
 }
 
-func get_products(tiendas []string) []Producto {
+func get_products(tiendas []string) map[key_prod]int {
 	URL := "productos-p6pdsjmljq-uc.a.run.app"
 
 	for _, tienda := range tiendas {
@@ -88,7 +133,10 @@ func get_products(tiendas []string) []Producto {
 			}
 			var new_prod Producto
 			json.NewDecoder(resp.Body).Decode(&new_prod)
-			productos = append(productos, new_prod)
+
+			//Decode de Tienda-ID on as a key of product
+			kp := key_prod{Tienda: new_prod.Tienda, ID: new_prod.ID}
+			productos[kp] = new_prod.Precio
 			i++
 		}
 	}
