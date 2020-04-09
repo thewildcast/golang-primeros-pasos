@@ -49,7 +49,9 @@ type Carrito struct {
 // CalcularPrecios recibe un arreglo de los IDs de productos y calcula,
 // para cada super mercado, cuanto saldria comprar esos productos ahi.
 // Retorna un slice de carritos, donde se tiene uno para cada super mercado.
-func (p Productos) CalcularPrecios(ids []int) []Carrito {
+func (p Productos) CalcularPrecios(ids ...int) []Carrito {
+
+	var carrito []Carrito
 
 	chango := map[string]int{}
 
@@ -74,14 +76,11 @@ func (p Productos) CalcularPrecios(ids []int) []Carrito {
 			if err != nil {
 				continue
 			}
-			chango[p[i][TIENDA_IDX]] = cadenaPrecio
+
+			chango[p[i][TIENDA_IDX]] += cadenaPrecio
 		}
 
 	}
-
-	dimension := len(chango)
-
-	carrito := make([]Carrito, 0, dimension)
 
 	for clave, valor := range chango {
 
@@ -101,6 +100,8 @@ func (p Productos) Promedio(idProducto int) float64 {
 	var prom float64
 	var suma, cantidad int
 
+	prom = 0.0
+
 	for i := 0; i < len(p); i++ {
 
 		if strconv.Itoa(idProducto) == p[i][ID_IDX] {
@@ -115,8 +116,10 @@ func (p Productos) Promedio(idProducto int) float64 {
 		}
 
 	}
+	if cantidad != 0 {
+		prom = float64(suma) / float64(cantidad)
 
-	prom = float64(suma) / float64(cantidad)
+	}
 
 	return prom
 }
@@ -141,6 +144,13 @@ func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
 
 	}
 
+	if len(produc) == 0 {
+
+		productoBarato.id = idProducto
+
+		return productoBarato, flag
+	}
+
 	var precios []string
 	for _, valor := range produc {
 
@@ -160,5 +170,7 @@ func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
 
 		}
 	}
+
 	return productoBarato, flag
+
 }
