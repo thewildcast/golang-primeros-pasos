@@ -1,10 +1,32 @@
 package tp1
 
+import (
+	"strconv"
+)
+
 // Producto contiene metodos que nos permiten acceder
 // a atributos que esperamos de un Producto.
 type Producto interface {
 	ID() int
 	Precio() int
+}
+
+type producto struct {
+	tienda string
+	id     int
+	precio int
+}
+
+func (p *producto) Tienda() string {
+	return p.tienda
+}
+
+func (p *producto) ID() int {
+	return p.id
+}
+
+func (p *producto) Precio() int {
+	return p.precio
 }
 
 // Productos es una lista de productos donde para cada producto
@@ -20,21 +42,72 @@ type Carrito struct {
 	Precio int
 }
 
+func newProducto(prod []string) producto {
+	pTienda := prod[0]
+	pID, _ := strconv.Atoi(prod[1])
+	pPrecio, _ := strconv.Atoi(prod[2])
+	return producto{pTienda, pID, pPrecio}
+}
+
 // CalcularPrecios recibe un arreglo de los IDs de productos y calcula,
 // para cada super mercado, cuanto saldria comprar esos productos ahi.
 // Retorna un slice de carritos, donde se tiene uno para cada super mercado.
 func (p Productos) CalcularPrecios(ids ...int) []Carrito {
-	return nil
+	idMap := make(map[int][]producto)
+	for i := 0; i < len(p); i++ {
+		prod := newProducto(p[i])
+		idMap[prod.ID()] = append(idMap[prod.ID()], prod)
+	}
+	tiendasMap := make(map[string]int)
+	for i := 0; i < len(ids); i++ {
+		prodByTienda := idMap[ids[i]]
+		for j := 0; j < len(prodByTienda); j++ {
+			tiendasMap[prodByTienda[j].Tienda()] = tiendasMap[prodByTienda[j].Tienda()] + prodByTienda[j].Precio()
+		}
+	}
+	var carrito []Carrito
+	for key, value := range tiendasMap {
+		carrito = append(carrito, Carrito{key, value})
+	}
+	return carrito
 }
 
 // Promedio recibe el id de un producto y retorna el precio promedio
 // de ese producto usando los precios de todos los supermercados.
 func (p Productos) Promedio(idProducto int) float64 {
-	return 0
+	var quantity int
+	var sum int
+	for i := 0; i < len(p); i++ {
+		prod := newProducto(p[i])
+		if prod.ID() == idProducto {
+			quantity = quantity + 1
+			sum = sum + prod.Precio()
+		}
+	}
+
+	if quantity <= 0 {
+		return 0
+	}
+
+	return float64(sum) / float64(quantity)
 }
 
 // BuscarMasBarato recibe un id de producto a buscar y te retorna
 // el producto mas barato que haya encontrado.
 func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
-	return nil, false
+	var minProd producto
+	for i := 0; i < len(p); i++ {
+		prod := newProducto(p[i])
+		if prod.ID() == idProducto {
+			if minProd.precio == 0 || minProd.Precio() > prod.Precio() {
+				minProd = prod
+			}
+		}
+	}
+
+	if minProd.precio == 0 {
+		return &producto{"", idProducto, 0}, false
+	}
+
+	return &minProd, true
 }
