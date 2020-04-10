@@ -75,7 +75,21 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 // Promedio recibe el id de un producto y retorna el precio promedio
 // de ese producto usando los precios de todos los supermercados.
 func (p Productos) Promedio(idProducto int) float64 {
-	return 0
+	var quantity int
+	var sum int
+	for i := 0; i < len(p); i++ {
+		prod := newProducto(p[i])
+		if prod.ID() == idProducto {
+			quantity = quantity + 1
+			sum = sum + prod.Precio()
+		}
+	}
+
+	if quantity <= 0 {
+		return 0
+	}
+
+	return float64(sum) / float64(quantity)
 }
 
 // BuscarMasBarato recibe un id de producto a buscar y te retorna
