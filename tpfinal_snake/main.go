@@ -5,9 +5,11 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/eiannone/keyboard"
+	"github.com/gosuri/uilive"
 )
 
 const (
@@ -17,54 +19,55 @@ const (
 	Board_Border = "#"
 	Board_Tail   = "$"
 	Board_Head   = "*"
-	Board_Fruit  = "$"
+	Board_fruit  = "@"
 	Board_Espace = " "
 
+	SNAKE_STILL     = 0
 	DIRECTION_UP    = 1
 	DIRECTION_DOWN  = 2
 	DIRECTION_LEFT  = 3
 	DIRECTION_RIGHT = 4
-	SNAKE_STILL     = 0
 )
 
-type Snake struct {
-	body      []SnakeBodyPart
-	Direction int32
+type snake struct {
+	body             []snakeBodyPart
+	currentDirection int32
+	newDirection     int32
 }
 
-type SnakeBodyPart struct {
+type snakeBodyPart struct {
 	x int
 	y int
 }
 
-type Fruit struct {
+type fruit struct {
 	x int
 	y int
 }
 
-func (s *Snake) Switch(direction int32) {
+func (s *snake) Switch(direction int32) {
 	if len(s.body) > 1 {
-		if (s.Direction == DIRECTION_UP && direction != DIRECTION_DOWN) ||
-			(s.Direction == DIRECTION_DOWN && direction != DIRECTION_UP) ||
-			(s.Direction == DIRECTION_RIGHT && direction != DIRECTION_LEFT) ||
-			(s.Direction == DIRECTION_LEFT && direction != DIRECTION_RIGHT) {
-			s.Direction = direction
+		if (s.currentDirection == DIRECTION_UP && direction != DIRECTION_DOWN) ||
+			(s.currentDirection == DIRECTION_DOWN && direction != DIRECTION_UP) ||
+			(s.currentDirection == DIRECTION_RIGHT && direction != DIRECTION_LEFT) ||
+			(s.currentDirection == DIRECTION_LEFT && direction != DIRECTION_RIGHT) {
+			s.newDirection = direction
 		}
 	} else {
-		s.Direction = direction
+		s.newDirection = direction
 	}
 }
 
 type Board struct {
-	Snake *Snake
-	Fruit *Fruit
+	snake *snake
+	fruit *fruit
 }
 
-func (b *Board) Init(s *Snake) {
-	b.Snake = s
+func (b *Board) init(s *snake) {
+	b.snake = s
 }
 
-func (s *Snake) collisionWithFruit(f Fruit) bool {
+func (s *snake) collisionWithfruit(f fruit) bool {
 	for _, body := range s.body {
 		if body.x == f.x && body.y == f.y {
 			return true
@@ -73,7 +76,7 @@ func (s *Snake) collisionWithFruit(f Fruit) bool {
 	return false
 }
 
-func (s *Snake) collisionWithHead(head SnakeBodyPart) bool {
+func (s *snake) collisionWithHead(head snakeBodyPart) bool {
 	for _, body := range s.body {
 		if body.x == head.x && body.y == head.y {
 			return true
@@ -82,58 +85,62 @@ func (s *Snake) collisionWithHead(head SnakeBodyPart) bool {
 	return false
 }
 
-func (b *Board) MoveSnake() {
-	if len(b.Snake.body) > 0 && b.Snake.Direction != SNAKE_STILL {
+func (b *Board) moveSnake() {
+	if b.snake.newDirection > SNAKE_STILL {
+		b.snake.currentDirection = b.snake.newDirection
+		b.snake.newDirection = SNAKE_STILL
+	}
+	if len(b.snake.body) > 0 && b.snake.currentDirection > SNAKE_STILL {
 		//Armo nueva cabeza
-		var oldHead = b.Snake.body[0]
-		var head SnakeBodyPart
-		switch b.Snake.Direction {
+		var oldHead = b.snake.body[0]
+		var head snakeBodyPart
+		switch b.snake.currentDirection {
 		case DIRECTION_UP:
-			head = SnakeBodyPart{x: oldHead.x - 1, y: oldHead.y}
+			head = snakeBodyPart{x: oldHead.x - 1, y: oldHead.y}
 			break
 		case DIRECTION_DOWN:
-			head = SnakeBodyPart{x: oldHead.x + 1, y: oldHead.y}
+			head = snakeBodyPart{x: oldHead.x + 1, y: oldHead.y}
 			break
 		case DIRECTION_RIGHT:
-			head = SnakeBodyPart{x: oldHead.x, y: oldHead.y + 1}
+			head = snakeBodyPart{x: oldHead.x, y: oldHead.y + 1}
 			break
 		case DIRECTION_LEFT:
-			head = SnakeBodyPart{x: oldHead.x, y: oldHead.y - 1}
+			head = snakeBodyPart{x: oldHead.x, y: oldHead.y - 1}
 			break
 		}
 		//Chequeo si choco con el muro
 		if head.x < 1 || head.x >= Board_Height || head.y < 1 || head.y >= Board_Width {
-			log.Fatalln("Perdiste!")
+			log.Fatalln("Game over!")
 			os.Exit(1)
 		}
-		if b.Snake.collisionWithHead(head) {
-			log.Fatalln("Perdiste!")
+		if b.snake.collisionWithHead(head) {
+			log.Fatalln("Game over!")
 			os.Exit(1)
 		}
 		//Armo nuevo cuerpo con nueva cabeza
-		b.Snake.body = append([]SnakeBodyPart{head}, b.Snake.body...)
+		b.snake.body = append([]snakeBodyPart{head}, b.snake.body...)
 		//Chequeo si comio fruta
-		if b.Fruit.x == head.x && b.Fruit.y == head.y {
-			b.AddFruit()
+		if b.fruit.x == head.x && b.fruit.y == head.y {
+			b.addfruit()
 		} else {
 			//Borro ultimo
-			b.Snake.body = b.Snake.body[:len(b.Snake.body)-1]
+			b.snake.body = b.snake.body[:len(b.snake.body)-1]
 		}
 	}
 }
 
-func (b *Board) AddFruit() {
-	var fruit Fruit
+func (b *Board) addfruit() {
+	var f fruit
 	for {
-		fruit = Fruit{x: rand.Intn(Board_Height-2) + 1, y: rand.Intn(Board_Width-2) + 1}
-		if !b.Snake.collisionWithFruit(fruit) {
+		f = fruit{x: rand.Intn(Board_Height-2) + 1, y: rand.Intn(Board_Width-2) + 1}
+		if !b.snake.collisionWithfruit(f) {
 			break
 		}
 	}
-	b.Fruit = &fruit
+	b.fruit = &f
 }
 
-func (b *Board) Print() {
+func (b *Board) buildScreen() string {
 	//Armo tablero
 	var cells [Board_Height][Board_Width]string
 	for row := 0; row < Board_Height; row++ {
@@ -149,46 +156,52 @@ func (b *Board) Print() {
 	}
 
 	//Pego vibora
-	for _, body := range b.Snake.body {
+	for _, body := range b.snake.body {
 		cells[body.x][body.y] = Board_Head
 	}
 
 	//Pego fruta
-	cells[b.Fruit.x][b.Fruit.y] = Board_Fruit
+	cells[b.fruit.x][b.fruit.y] = Board_fruit
 
+	var pantalla = ""
 	//Imprimo tablero
 	for i, _ := range cells {
 		for j, _ := range cells[i] {
 			var cel = cells[i][j]
-			fmt.Print(cel)
+			pantalla += cel
 		}
-		fmt.Println()
+		pantalla += "\n"
 	}
-
+	pantalla += "Snake length: " + strconv.Itoa(len(b.snake.body)) + "\n"
+	return pantalla
 }
 
 func printGame(b *Board) {
+	writer := uilive.New()
+	writer.Start()
+	defer writer.Stop() // flush and sto
 	for {
-		CallClear()
-		b.MoveSnake()
-		b.Print()
+		b.moveSnake()
+		var screen = b.buildScreen()
+		fmt.Fprintf(writer, screen)
 		time.Sleep(Refresh_Rate * time.Millisecond)
 	}
 }
 
 func main() {
-	fmt.Println("Inicio de Snake Game")
+	fmt.Println("Snake Game")
+	rand.Seed(time.Now().UnixNano())
 
 	var board = Board{}
 
-	var snakeBodyPart []SnakeBodyPart
-	snakeBodyPart = append(snakeBodyPart, SnakeBodyPart{x: 1, y: 1})
+	var sbp []snakeBodyPart
+	sbp = append(sbp, snakeBodyPart{x: 1, y: 1})
 
-	var snake = Snake{body: snakeBodyPart, Direction: SNAKE_STILL}
+	var snake = snake{body: sbp, currentDirection: SNAKE_STILL}
 
-	board.Init(&snake)
+	board.init(&snake)
 
-	board.AddFruit()
+	board.addfruit()
 
 	go printGame(&board)
 
