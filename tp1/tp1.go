@@ -95,5 +95,19 @@ func (p Productos) Promedio(idProducto int) float64 {
 // BuscarMasBarato recibe un id de producto a buscar y te retorna
 // el producto mas barato que haya encontrado.
 func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
-	return nil, false
+	var minProd producto
+	for i := 0; i < len(p); i++ {
+		prod := newProducto(p[i])
+		if prod.ID() == idProducto {
+			if minProd.precio == 0 || minProd.Precio() > prod.Precio() {
+				minProd = prod
+			}
+		}
+	}
+
+	if minProd.precio == 0 {
+		return &producto{"", idProducto, 0}, false
+	}
+
+	return &minProd, true
 }
