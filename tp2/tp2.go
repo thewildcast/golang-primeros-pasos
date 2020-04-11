@@ -17,41 +17,34 @@ func SumarLista(sumFunc sumador, numeros ...int) (int, error) {
 		return 0, errors.New("Received empty array to perform sum operation")
 	}
 
-	wg.Add(2)
+	if len(numeros)%2 != 0 {
 
-	valuesCh := gen(numeros)
-	wg.Done()
-	output := process(valuesCh, sumFunc)
-	wg.Done()
+		numeros = append(numeros, 0)
+	}
+
+	output := make(chan int, len(numeros)/2)
+	wg.Add(len(numeros) / 2)
+
+	var total int = 0
+
+	for i := 0; i < len(numeros); i = i + 2 {
+
+		go func(x int) {
+
+			j := sumFunc(numeros[x], numeros[x+1])
+			output <- j
+
+		}(i)
+
+		wg.Done()
+
+	}
+
+	for k := 0; k < len(numeros)/2; k++ {
+		total += <-output
+	}
 
 	wg.Wait()
 
-	return <-output, nil
-
-}
-
-func gen(nums []int) <-chan int {
-
-	out := make(chan int)
-	go func() {
-		for _, n := range nums {
-			out <- n
-		}
-		close(out)
-	}()
-	return out
-
-}
-
-func process(in <-chan int, sumFunc sumador) <-chan int {
-	out := make(chan int)
-	var t int = 0
-	go func() {
-		for n := range in {
-			t = sumFunc(t, n)
-		}
-		out <- t
-		close(out)
-	}()
-	return out
+	return total, nil
 }
