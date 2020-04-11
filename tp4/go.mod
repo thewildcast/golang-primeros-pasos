@@ -1,4 +1,4 @@
-module github.com/wildcast/golang-primeros-pasos
+module github.com/wildcast/golang-primeros-pasos/tp4
 
 go 1.14
 
