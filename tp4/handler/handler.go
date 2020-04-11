@@ -2,57 +2,71 @@ package supermarket
 
 import (
 	"encoding/json"
-	"github.com/wildcast/golang-primeros-pasos/tp4/client"
+	"errors"
+	"log"
 	"net/http"
-	"strings"
+	"strconv"
+	"time"
+
+	"github.com/wildcast/golang-primeros-pasos/tp4/service"
+
 	"github.com/wildcast/golang-primeros-pasos/tp4/model"
 )
+
+type caller struct{}
+
+func (c caller) Call(url string) (model.SupermarketResponse, error) {
+
+	timeout := time.Duration(2 * time.Second)
+
+	client := http.Client{
+		Timeout: timeout,
+	}
+
+	res, err := client.Get(url)
+
+	if err != nil {
+
+		log.Fatal(err)
+	}
+
+	if res.StatusCode != http.StatusOK {
+
+		return model.SupermarketResponse{}, errors.New(strconv.Itoa(res.StatusCode))
+	}
+
+	defer res.Body.Close()
+	var response model.SupermarketResponse
+
+	json.NewDecoder(res.Body).Decode(&response)
+
+	return response, nil
+
+}
 
 //PriceHandler with will be on charge of perform price operation
 func PriceHandler(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Content-Type", "application/json")
 	requestData := r.URL.Query()
 	url := "https://productos-p6pdsjmljq-uc.a.run.app/name/productos/id"
 
 	supermarketsNames := requestData["supermarkets"]
 	productIds := requestData["productids"]
-    result:= make(map[string]model.Carrito)
+	c := caller{}
+	result, error := service.Execute(c, url, supermarketsNames, productIds)
 
-	for _, storeName := range supermarketsNames {
-
-		tmpURL := url
-		tmpURL = strings.Replace(tmpURL, "name", storeName, 1)
-
-		for _, id := range productIds {
-
-			tmpURL = strings.Replace(tmpURL, "id", id, 1)
-			apiResponse := client.Call(tmpURL, w)
-
-			if apiResponse.Precio == 0 || apiResponse.Tienda == "" {
-
-				result = nil
-				break
-			}
-				
-				_, present := result[storeName]
-
-				if present {
-	
-					newPrice := result[storeName].Precio + apiResponse.Precio
-					result[storeName] = model.Carrito{Precio: newPrice}
-				} else {
-			
-					result[storeName] = model.Carrito{Precio: apiResponse.Precio}
-				}
-	
-				tmpURL = strings.Replace(tmpURL, string(id), "id", 1)
-	
+	if error != nil {
+		response := model.Response{
+			StatusCode: error.Error(),
+			Message:    "Problem during client call",
 		}
+		json.NewEncoder(w).Encode(response)
+		return
 	}
 
 	if result != nil {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(result) 
+		json.NewEncoder(w).Encode(result)
 	}
-	
+
 }

@@ -14,7 +14,6 @@ type SupermarketResponse struct {
 
 //Response represents an error if there is not product for a given id
 type Response struct {
-	Error string
-	StatusCode int
+	StatusCode string
+	Message    string
 }
-
