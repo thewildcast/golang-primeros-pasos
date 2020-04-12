@@ -86,20 +86,16 @@ func (lb *LoadBalancer) init() {
 func (lb *LoadBalancer) handle(res http.ResponseWriter, req *http.Request) {
 	lb.rl.Take()
 
-	// parse the url
 	log.Printf("%v,", lb.conf)
 	url, _ := url.Parse(lb.algorithm.FindNode())
 
-	// create the reverse proxy
 	proxy := httputil.NewSingleHostReverseProxy(url)
 
-	// Update the headers to allow for SSL redirection
 	req.URL.Host = url.Host
 	req.URL.Scheme = url.Scheme
 	req.Header.Set("X-Forwarded-Host", req.Header.Get("Host"))
 	req.Host = url.Host
 
-	// Note that ServeHttp is non blocking and uses a go routine under the hood
 	proxy.ServeHTTP(res, req)
 }
 
@@ -117,60 +113,10 @@ func loadConfig(filePath string) loadBalancerConfig {
 	return conf
 }
 
-// func LB2Handler(res http.ResponseWriter, req *http.Request) {
-
-// 	// parse the url
-// 	url, _ := url.Parse("http://localhost:8082")
-
-// 	// create the reverse proxy
-// 	proxy := httputil.NewSingleHostReverseProxy(url)
-
-// 	// Update the headers to allow for SSL redirection
-// 	req.URL.Host = url.Host
-// 	req.URL.Scheme = url.Scheme
-// 	req.Header.Set("X-Forwarded-Host", req.Header.Get("Host"))
-// 	req.Host = url.Host
-
-// 	// Note that ServeHttp is non blocking and uses a go routine under the hood
-// 	proxy.ServeHTTP(res, req)
-// 	//https://hackernoon.com/writing-a-reverse-proxy-in-just-one-line-with-go-c1edfa78c84b
-// }
-
-// func LBHandler(w http.ResponseWriter, r *http.Request) {
-// 	// log.Printf("Path: %s", html.EscapeString(r.URL.Path))
-// 	// log.Printf("Method: %s", html.EscapeString(r.Method))
-// 	// log.Printf("Host: %s", html.EscapeString(r.Host))
-// 	// log.Printf("Protocol: %s", html.EscapeString(r.Proto))
-// 	// body, _ := ioutil.ReadAll(r.Body)
-// 	// log.Printf("Body: %v", body)
-// 	log.Printf("Headers: %v", r.Header)
-
-// 	client := &http.Client{}
-// 	req, _ := http.NewRequest(html.EscapeString(r.Method), "http://localhost:8082"+html.EscapeString(r.URL.Path), r.Body)
-// 	// req.Header.Add("If-None-Match", `W/"wyzzy"`)
-// 	for k, v := range r.Header {
-// 		log.Printf("Header: %s %s", k, v)
-// 		req.Header.Add(k, v[0])
-// 	}
-// 	resp, _ := client.Do(req)
-// 	log.Printf("Respuesta: %v", resp)
-// 	body, _ := ioutil.ReadAll(resp.Body)
-
-// 	for k, v := range resp.Header {
-// 		w.Header().Set(k, v[0])
-// 	}
-
-// 	fmt.Fprint(w, body)
-
-// 	log.Println("===========================================================================")
-// }
-
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
-	//https://productos-p6pdsjmljq-uc.a.run.app/dia/productos/1
 	loadBalancerConfig := loadConfig("config.json")
-	//log.Printf("%v,", loadBalancerConfig)
 	lb := LoadBalancer{conf: loadBalancerConfig}
 	lb.init()
 

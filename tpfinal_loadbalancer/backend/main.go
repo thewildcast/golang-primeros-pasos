@@ -21,7 +21,7 @@ func (b *Backend) LBHandler(w http.ResponseWriter, r *http.Request) {
 	body, _ := ioutil.ReadAll(r.Body)
 	log.Printf("Body: %v", body)
 	log.Printf("Headers: %v", r.Header)
-	w.Header().Add("brunoli", "de wilde")
+	w.Header().Add("Backend", b.port)
 	fmt.Fprintf(w, "Soy el backend del puerto: "+b.port)
 
 	log.Println("===========================================================================")
