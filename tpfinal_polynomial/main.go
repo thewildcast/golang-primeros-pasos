@@ -188,6 +188,9 @@ func parsePolynomialPart(part string, isNegative bool) (coef int, degree int) {
 
 func main() {
 
+	if len(os.Args) != 2 {
+		log.Fatalf("Invalid parameters. Enter a polynomial function. Ex: x^2+2x-8")
+	}
 	polynomialString := os.Args[1]
 
 	log.Println("Polynomio ", polynomialString)

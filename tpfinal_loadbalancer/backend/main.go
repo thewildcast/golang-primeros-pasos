@@ -29,6 +29,9 @@ func (b *Backend) LBHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	if len(os.Args) != 2 {
+		log.Fatalf("Invalid parameters. Enter a port number. Ex: 8082")
+	}
 	port := os.Args[1]
 	log.Printf("Listening on port %s", port)
 	b := Backend{port: port}
