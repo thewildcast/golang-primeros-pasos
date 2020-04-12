@@ -1,0 +1,23 @@
+{
+  "ip": "127.0.0.1",
+  "port": 8080,
+  "default_algorithm": "random",
+  "rate_limit": 10,
+  "nodes": [
+    {
+      "ip": "localhost",
+      "port": 8082,
+      "protocol": "http"
+    },
+    {
+      "ip": "localhost",
+      "port": 8083,
+      "protocol": "http"
+    },
+    {
+      "ip": "localhost",
+      "port": 8084,
+      "protocol": "http"
+    }
+  ]
+}
