@@ -40,25 +40,27 @@ func CalculoAuxiliar(sumas, mults, divisiones, restas <-chan *Operandos, corte <
 	for{
 		select {
 		case s:=<- sumas:
+			fmt.Println("Suma")
 			
 			resSuma := float64(s.A + s.B)
 
 			resultados <- &Resultado{SUMA,resSuma}
 
 		case r:=<- restas:
-
+			fmt.Println("Resta")
 			resResta := float64(r.A - r.B)
 
 			resultados <- &Resultado{RESTA,resResta}
 
 		case m:=<- mults:
-			
+			fmt.Println("Multiplicación")
 			resMulti:= float64(m.A * m.B)
 
 			resultados <- &Resultado{MULT, resMulti}
 
 		case d:=<-divisiones:
 			
+			fmt.Println("División")
 			if d.B != 0{
 
 				resDiv := float64(d.A / d.B)
@@ -69,6 +71,7 @@ func CalculoAuxiliar(sumas, mults, divisiones, restas <-chan *Operandos, corte <
 		case <-corte:
 			fmt.Println("Fin de las operaciones")
 			close(resultados)
+			return
 			
 		}
 	}
