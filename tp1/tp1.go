@@ -47,16 +47,12 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 	for _, id := range ids {
 		for _, product := range p {
 			idProduct, err := strconv.Atoi(product[1])
-			if err == nil {
-				if id == idProduct {
-					precio, err := strconv.Atoi(product[2])
-					if err == nil {
-						preciosPorSuper[product[0]] += precio
-					}
-
+			if err == nil && id == idProduct {
+				precio, err := strconv.Atoi(product[2])
+				if err == nil {
+					preciosPorSuper[product[0]] += precio
 				}
 			}
-
 		}
 	}
 
