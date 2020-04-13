@@ -33,5 +33,23 @@ type Resultado struct {
 }
 
 func Calcular(sumas, mults, divisiones, restas <-chan *Operandos, corte <-chan struct{}) chan *Resultado {
-	return nil
+	resultados := make(chan *Resultado)
+	go func() {
+		for {
+			select {
+			case s := <-sumas:
+				resultados <- &Resultado{Operacion: SUMA, Resultado: float64(s.A + s.B)}
+			case m := <-mults:
+				resultados <- &Resultado{Operacion: MULT, Resultado: float64(m.A * m.B)}
+			case d := <-divisiones:
+				resultados <- &Resultado{Operacion: DIVISION, Resultado: float64(d.A / d.B)}
+			case r := <-restas:
+				resultados <- &Resultado{Operacion: RESTA, Resultado: float64(r.A - r.B)}
+			case <-corte:
+				close(resultados)
+				return
+			}
+		}
+	}()
+	return resultados
 }
