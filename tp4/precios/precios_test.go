@@ -44,7 +44,8 @@ func TestCalcularPrecios(t *testing.T) {
 
 	for _, test := range casos {
 		t.Run(test.nombre, func(t *testing.T) {
-			carritos, err := CalcularPrecios(test.pIDs, test.sIDs)
+			service := NewService()
+			carritos, err := service.CalcularPrecios(test.pIDs, test.sIDs)
 			if err != nil && !test.errores {
 				t.Errorf("Se esperaba que el calculo de precios retornara con exito pero dio error: %v", err)
 			}

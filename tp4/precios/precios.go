@@ -3,8 +3,8 @@ package precios
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
+	"sync"
 )
 
 type precioTienda struct {
@@ -15,9 +15,6 @@ type precioTienda struct {
 
 const numWorkers = 8
 
-// A modo de cache uso un mapa de ID de producto a mapa de ID de Super a Precio
-var cache map[int](map[string]int)
-
 const apiURL string = "https://productos-p6pdsjmljq-uc.a.run.app/%s/productos/%d"
 
 // Carrito contiene una suma de precios para un supermercado dado
@@ -26,15 +23,47 @@ type Carrito struct {
 	Precio int    `json: "precio"`
 }
 
-func init() {
-	log.Println("Initializing Precios...")
-	cache = make(map[int](map[string]int))
+// Service es la estructura que usamos para persistir el estado del
+// servicio
+type Service struct {
+	// A modo de cache uso un mapa de ID de producto a mapa de ID de Super a Precio
+	cache map[int](map[string]int)
+	mux   sync.Mutex
 }
 
-func preciosWorker(preciosAObtener <-chan precioTienda, precios chan<- precioTienda, errores chan<- error) {
+// NewService inicializa una estructura que permite utilizar los
+// servicios de este paquete
+func NewService() Service {
+	return Service{cache: make(map[int](map[string]int))}
+}
+
+func (s *Service) updateCache(precio precioTienda) {
+	s.mux.Lock()
+	if _, ok := s.cache[precio.ID]; !ok {
+		s.cache[precio.ID] = make(map[string]int)
+	}
+	s.cache[precio.ID][precio.Tienda] = precio.Precio
+	s.mux.Unlock()
+}
+
+func (s *Service) getFromCache(pID int, sID string) (int, bool) {
+	s.mux.Lock()
+	defer s.mux.Unlock()
+	_, prodInCache := s.cache[pID]
+	if !prodInCache {
+		return 0, false
+	}
+	price, priceInCache := s.cache[pID][sID]
+	return price, priceInCache
+}
+
+func (s *Service) preciosWorker(preciosAObtener <-chan precioTienda, precios chan<- precioTienda, errores chan<- error, abort *bool) {
 	for p := range preciosAObtener {
 		fmt.Printf("Getting price of %d from %s\n", p.ID, p.Tienda)
-
+		// abort indica que tenemos que abortar la ejecucion
+		if *abort {
+			return
+		}
 		req, err := http.NewRequest(http.MethodGet, fmt.Sprintf(apiURL, p.Tienda, p.ID), nil)
 		if err != nil {
 			errores <- fmt.Errorf("No se pudo obtener el precio para el producto %d en el supermercado %s", p.ID, p.Tienda)
@@ -51,15 +80,12 @@ func preciosWorker(preciosAObtener <-chan precioTienda, precios chan<- precioTie
 	}
 }
 
-func preciosCollector(precios <-chan precioTienda, errores <-chan error, numFaltantes int, done chan<- error) {
+func (s *Service) preciosCollector(precios <-chan precioTienda, errores <-chan error, numFaltantes int, done chan<- error) {
 	numPrecios := 0
 	for {
 		select {
 		case p := <-precios:
-			if _, ok := cache[p.ID]; !ok {
-				cache[p.ID] = make(map[string]int)
-			}
-			cache[p.ID][p.Tienda] = p.Precio
+			s.updateCache(p)
 			numPrecios++
 			if numPrecios == numFaltantes {
 				done <- nil
@@ -72,11 +98,12 @@ func preciosCollector(precios <-chan precioTienda, errores <-chan error, numFalt
 	}
 }
 
-func calcularCarritos(pIDs []int, sIDs []string) []Carrito {
+func (s *Service) calcularCarritos(pIDs []int, sIDs []string) []Carrito {
 	precios := make(map[string]int) // Mapeo de supermercado a precio total
 	for _, pID := range pIDs {
 		for _, sID := range sIDs {
-			precios[sID] += cache[pID][sID]
+			precio, _ := s.getFromCache(pID, sID)
+			precios[sID] += precio
 		}
 	}
 	var res []Carrito
@@ -86,16 +113,12 @@ func calcularCarritos(pIDs []int, sIDs []string) []Carrito {
 	return res
 }
 
-func listaPreciosFaltantes(pIDs []int, sIDs []string) []precioTienda {
+func (s *Service) listaPreciosFaltantes(pIDs []int, sIDs []string) []precioTienda {
 	preciosFaltantes := []precioTienda{}
 	for _, pID := range pIDs {
 		for _, sID := range sIDs {
-			_, prodInCache := cache[pID]
-			priceInCache := false
-			if prodInCache {
-				_, priceInCache = cache[pID][sID]
-			}
-			if !priceInCache {
+			_, inCache := s.getFromCache(pID, sID)
+			if !inCache {
 				preciosFaltantes = append(preciosFaltantes, precioTienda{sID, pID, 0})
 			}
 		}
@@ -103,8 +126,8 @@ func listaPreciosFaltantes(pIDs []int, sIDs []string) []precioTienda {
 	return preciosFaltantes
 }
 
-func obtenerPreciosFaltantesDeAPI(pIDs []int, sIDs []string) error {
-	preciosFaltantes := listaPreciosFaltantes(pIDs, sIDs)
+func (s *Service) obtenerPreciosFaltantesDeAPI(pIDs []int, sIDs []string) error {
+	preciosFaltantes := s.listaPreciosFaltantes(pIDs, sIDs)
 
 	if len(preciosFaltantes) > 0 {
 		// Inicializacion de channels
@@ -112,6 +135,7 @@ func obtenerPreciosFaltantesDeAPI(pIDs []int, sIDs []string) error {
 		precios := make(chan precioTienda)
 		errores := make(chan error)
 		done := make(chan error)
+		abort := false
 
 		// Precarga de precios a obtener
 		for i := range preciosFaltantes {
@@ -122,12 +146,13 @@ func obtenerPreciosFaltantesDeAPI(pIDs []int, sIDs []string) error {
 		// Inicializacion de workers
 		w := 0
 		for w < numWorkers {
-			go preciosWorker(preciosAObtener, precios, errores)
+			go s.preciosWorker(preciosAObtener, precios, errores, &abort)
 			w++
 		}
 
-		go preciosCollector(precios, errores, len(preciosFaltantes), done)
+		go s.preciosCollector(precios, errores, len(preciosFaltantes), done)
 		err := <-done
+		abort = true
 		if err != nil {
 			return err
 		}
@@ -137,10 +162,10 @@ func obtenerPreciosFaltantesDeAPI(pIDs []int, sIDs []string) error {
 
 // CalcularPrecios calcula los precios para la lista de IDs de productos pIDs en
 // los supermercados indicados en sIDs y devuelve una lista de Carrito
-func CalcularPrecios(pIDs []int, sIDs []string) ([]Carrito, error) {
-	err := obtenerPreciosFaltantesDeAPI(pIDs, sIDs)
+func (s *Service) CalcularPrecios(pIDs []int, sIDs []string) ([]Carrito, error) {
+	err := s.obtenerPreciosFaltantesDeAPI(pIDs, sIDs)
 	if err != nil {
 		return nil, err
 	}
-	return calcularCarritos(pIDs, sIDs), nil
+	return s.calcularCarritos(pIDs, sIDs), nil
 }

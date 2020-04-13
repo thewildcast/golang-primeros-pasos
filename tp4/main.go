@@ -3,11 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/wildcast/golang-primeros-pasos/tp4/precios"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
+	"github.com/wildcast/golang-primeros-pasos/tp4/precios"
 )
 
 func defaultHandler(w http.ResponseWriter, r *http.Request) {
@@ -16,7 +17,11 @@ func defaultHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("/precios?pid=XXX&pid=YYY&sid=SSS&sid=TTT devuelve la suma de los precios para los productos XXX y YYY en los supermercados SSS y TTT.\n"))
 }
 
-func preciosHandler(w http.ResponseWriter, r *http.Request) {
+type service struct {
+	api precios.Service
+}
+
+func (serv *service) preciosHandler(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	// Convierto los ids de string a numero y armo un slice
 	pIDs := []int{}
@@ -29,22 +34,26 @@ func preciosHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	if precios, err := precios.CalcularPrecios(pIDs, params["sid"]); err == nil {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(precios)
-	} else {
+	precios, err := serv.api.CalcularPrecios(pIDs, params["sid"])
+	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintf(w, "Error: %v", err)
+	}
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(precios)
+	if err != nil {
+		http.Error(w, "Ocurrio un error inesperado", 500)
 	}
 }
 
 func main() {
+	serv := service{precios.NewService()}
 	r := mux.NewRouter()
 	r.HandleFunc("/", defaultHandler)
 	r.Path("/precios").
 		Queries("pid", "{pid}"). // Id de producto
 		Queries("sid", "{sid}"). // Id de supermercado
-		HandlerFunc(preciosHandler).
+		HandlerFunc(serv.preciosHandler).
 		Name("precios")
 
 	// Bind to a port and pass our router in
