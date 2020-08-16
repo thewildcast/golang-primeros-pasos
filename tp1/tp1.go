@@ -44,15 +44,13 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 
 	carritos := []Carrito{}
 
-	listadoDeProductos, _ := LeerProductos("productos.json")
-
 	for _, supermercado := range Supermercados {
 
 		carrito := Carrito{Tienda: supermercado}
 
 		precioTotal := 0
 
-		for _, producto := range listadoDeProductos {
+		for _, producto := range p {
 
 			for _, id := range ids {
 
