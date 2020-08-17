@@ -1,10 +1,27 @@
 package tp1
 
+import (
+	"strconv"
+)
+
 // Producto contiene metodos que nos permiten acceder
 // a atributos que esperamos de un Producto.
 type Producto interface {
 	ID() int
 	Precio() int
+}
+
+type ProductoMasBarato struct {
+	Id             int
+	PrecioProducto int
+}
+
+func (p ProductoMasBarato) ID() int {
+	return p.Id
+}
+
+func (p ProductoMasBarato) Precio() int {
+	return p.PrecioProducto
 }
 
 // Productos es una lista de productos donde para cada producto
@@ -24,17 +41,75 @@ type Carrito struct {
 // para cada super mercado, cuanto saldria comprar esos productos ahi.
 // Retorna un slice de carritos, donde se tiene uno para cada super mercado.
 func (p Productos) CalcularPrecios(ids ...int) []Carrito {
-	return nil
+
+	carritos := []Carrito{}
+
+	precios := map[string]int{}
+
+	for _, producto := range p {
+
+		for _, id := range ids {
+
+			if strconv.FormatInt(int64(id), 10) != producto[1] {
+				continue
+			}
+
+			precioProducto, err := strconv.Atoi(producto[2])
+
+			if err != nil {
+				continue
+			}
+
+			precios[producto[0]] = precios[producto[0]] + precioProducto
+		}
+	}
+
+	for key, value := range precios {
+		carrito := Carrito{Tienda: key, Precio: value}
+		carritos = append(carritos, carrito)
+	}
+
+	return carritos
 }
 
 // Promedio recibe el id de un producto y retorna el precio promedio
 // de ese producto usando los precios de todos los supermercados.
 func (p Productos) Promedio(idProducto int) float64 {
-	return 0
+
+	listadoDeProductos, _ := LeerProductos("productos.json")
+
+	var precioPromedio float64
+
+	for _, producto := range listadoDeProductos {
+
+		if strconv.FormatInt(int64(idProducto), 10) == producto[1] {
+			precio, _ := strconv.ParseFloat(producto[2], 64)
+			precioPromedio += precio
+		}
+
+	}
+	return precioPromedio / float64(len(Supermercados))
 }
 
 // BuscarMasBarato recibe un id de producto a buscar y te retorna
 // el producto mas barato que haya encontrado.
 func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
-	return nil, false
+
+	listadoDeProductos, _ := LeerProductos("productos.json")
+
+	productoMasBarato := ProductoMasBarato{Id: idProducto, PrecioProducto: 0}
+
+	for _, producto := range listadoDeProductos {
+
+		if strconv.FormatInt(int64(idProducto), 10) == producto[1] {
+
+			precio, _ := strconv.Atoi(producto[2])
+
+			if productoMasBarato.Precio() == 0 || precio < productoMasBarato.Precio() {
+				productoMasBarato.PrecioProducto = precio
+			}
+		}
+
+	}
+	return productoMasBarato, productoMasBarato.Precio() != 0
 }
