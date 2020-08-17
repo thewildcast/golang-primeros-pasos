@@ -44,29 +44,31 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 
 	carritos := []Carrito{}
 
-	for _, supermercado := range Supermercados {
+	precios := map[string]int{}
 
-		carrito := Carrito{Tienda: supermercado}
+	for _, producto := range p {
 
-		precioTotal := 0
+		for _, id := range ids {
 
-		for _, producto := range p {
-
-			for _, id := range ids {
-
-				if supermercado == producto[0] && strconv.FormatInt(int64(id), 10) == producto[1] {
-
-					precioProducto, _ := strconv.Atoi(producto[2])
-					precioTotal += precioProducto
-				}
+			if strconv.FormatInt(int64(id), 10) != producto[1] {
+				continue
 			}
-		}
-		carrito.Precio = precioTotal
 
-		if precioTotal > 0 {
-			carritos = append(carritos, carrito)
+			precioProducto, err := strconv.Atoi(producto[2])
+
+			if err != nil {
+				continue
+			}
+
+			precios[producto[0]] = precios[producto[0]] + precioProducto
 		}
 	}
+
+	for key, value := range precios {
+		carrito := Carrito{Tienda: key, Precio: value}
+		carritos = append(carritos, carrito)
+	}
+
 	return carritos
 }
 
