@@ -2,8 +2,8 @@ package tp1
 
 import (
 	"fmt"
-	"strconv"
 	"math"
+	"strconv"
 )
 
 // Producto contiene metodos que nos permiten acceder
@@ -14,7 +14,7 @@ type Producto interface {
 }
 
 type ProductoType struct {
-	id int
+	id     int
 	precio int
 }
 
@@ -39,25 +39,43 @@ type Carrito struct {
 	Precio int
 }
 
+// PrecioTienda tiene el precio de un producto en una tienda.
+type PrecioTienda struct {
+	Tienda string
+	Precio int
+}
+
 // CalcularPrecios recibe un arreglo de los IDs de productos y calcula,
 // para cada super mercado, cuanto saldria comprar esos productos ahi.
 // Retorna un slice de carritos, donde se tiene uno para cada super mercado.
 func (p Productos) CalcularPrecios(ids ...int) []Carrito {
-	var mapResult = make(map[string]int)
-	var result []Carrito
+	var productosPorSupermercado = make(map[int][]PrecioTienda)
+	for _, producto := range p {
+		idProducto, err := strconv.Atoi(producto[1])
+		if err != nil {
+			fmt.Printf("CalcularPrecios error al id %s en entero", producto[1])
+			return nil
+		}
+		precio, err := strconv.Atoi(producto[2])
+		if err != nil {
+			fmt.Printf("CalcularPrecios error al convertir el precio %s en entero", producto[2])
+			return nil
+		}
+		precioTienda := PrecioTienda{
+			Tienda: producto[0],
+			Precio: precio,
+		}
+		productosPorSupermercado[idProducto] = append(productosPorSupermercado[idProducto], precioTienda)
+	}
+	var precioTotalPorSupermercado = make(map[string]int)
 	for _, id := range ids {
-		for _, producto := range p {
-			if producto[1] == fmt.Sprintf("%d", id) {
-				price, err := strconv.Atoi(producto[2])
-				if err != nil {
-					panic(err)
-				}
-				mapResult[producto[0]] += price
-			}
+		for _, precioTienda := range productosPorSupermercado[id] {
+			precioTotalPorSupermercado[precioTienda.Tienda] += precioTienda.Precio
 		}
 	}
-	for key, value := range mapResult {
-		result = append(result, Carrito{key, value})
+	var result []Carrito
+	for tienda, precio := range precioTotalPorSupermercado {
+		result = append(result, Carrito{tienda, precio})
 	}
 	return result
 }
@@ -65,12 +83,13 @@ func (p Productos) CalcularPrecios(ids ...int) []Carrito {
 // Promedio recibe el id de un producto y retorna el precio promedio
 // de ese producto usando los precios de todos los supermercados.
 func (p Productos) Promedio(idProducto int) float64 {
-	var sum , quantity int
+	var sum, quantity int
 	for _, producto := range p {
 		if producto[1] == fmt.Sprintf("%d", idProducto) {
 			price, err := strconv.Atoi(producto[2])
 			if err != nil {
-				panic(err)
+				fmt.Printf("Promedio error al convertir el precio %s en entero", producto[2])
+				return 0
 			}
 			sum += price
 			quantity++
@@ -85,14 +104,16 @@ func (p Productos) Promedio(idProducto int) float64 {
 func stringToProductoType(producto []string) ProductoType {
 	id, err := strconv.Atoi(producto[1])
 	if err != nil {
-		panic(err)
+		fmt.Printf("Promedio error al convertir el id %s en entero", producto[2])
+		return ProductoType{}
 	}
 	precio, err := strconv.Atoi(producto[2])
 	if err != nil {
-		panic(err)
+		fmt.Printf("Promedio error al convertir el precio %s en entero", producto[2])
+		return ProductoType{}
 	}
 	return ProductoType{
-		id: id,
+		id:     id,
 		precio: precio,
 	}
 }
@@ -109,7 +130,7 @@ func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
 		newProductoType := stringToProductoType(producto)
 		if newProductoType.id == idProducto && newProductoType.precio < minPrice {
 			productoMasBarato = ProductoType{
-				id: newProductoType.id,
+				id:     newProductoType.id,
 				precio: newProductoType.precio,
 			}
 			minPrice = newProductoType.precio
@@ -117,4 +138,4 @@ func (p Productos) BuscarMasBarato(idProducto int) (Producto, bool) {
 		}
 	}
 	return productoMasBarato, found
-} 
+}
