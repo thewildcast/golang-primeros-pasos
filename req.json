@@ -1,0 +1,12 @@
+{
+    "idProductos": [
+        1,
+        2,
+        3,
+        4
+    ],
+    "idTiendas": [
+        "dia",
+        "superVea"
+    ]
+}
