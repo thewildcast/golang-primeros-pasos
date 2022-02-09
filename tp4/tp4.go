@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"sync"
 	"time"
 )
 
@@ -33,17 +32,15 @@ type Carrito struct {
 	Precio int
 }
 
-// ProductoTienda contiene el nombre de la tienda y el id del producto que quiero consultar
-type ProductoTienda struct {
-	ID     string
+type TiendaProducto struct {
 	Tienda string
+	ID     int
 }
 
 //
 // {"tienda":"dia","id":1,"precio":7887}
-func GetProductoTienda(idTienda string, idProducto int, carritoMap map[string]int, wg *sync.WaitGroup, someMapMutex *sync.RWMutex) {
-	defer wg.Done()
-	time.Sleep(time.Second * 3)
+func GetProductoTienda(idTienda string, idProducto int, requests chan<- Carrito) {
+	time.Sleep(time.Second * 2)
 	url := fmt.Sprintf("https://productos-p6pdsjmljq-uc.a.run.app/%s/productos/%s", idTienda, fmt.Sprint(idProducto))
 	resp, err := http.Get(url)
 	if err != nil {
@@ -55,14 +52,34 @@ func GetProductoTienda(idTienda string, idProducto int, carritoMap map[string]in
 	if err != nil {
 		panic(err)
 	}
-	someMapMutex.Lock()
-	carritoMap[idTienda] += int(j["precio"].(float64))
-	someMapMutex.Unlock()
-	//carrito := Carrito{Tienda: idTienda, Precio: int(j["precio"].(float64))}
-	//*carritos = append(*carritos, carrito)
+	precio := int(j["precio"].(float64))
+	requests <- Carrito{Tienda: idTienda, Precio: precio}
 }
 
 func calcPreciosBulk(idsProductos []int, idTiendas []string) []Carrito {
+	iterations := len(idTiendas) * len(idsProductos)
+	requests := make(chan Carrito, iterations)
+	for _, idTienda := range idTiendas {
+		for _, idProducto := range idsProductos {
+			// remove go and it wil take very long
+			go GetProductoTienda(idTienda, idProducto, requests)
+		}
+	}
+	carritoMap := make(map[string]int)
+	for i := 0; i < iterations; i++ {
+		carr := <-requests
+		carritoMap[carr.Tienda] += carr.Precio
+	}
+	var carritoUltimo []Carrito
+	for tienda, precio := range carritoMap {
+		carritoUltimo = append(carritoUltimo, Carrito{Tienda: tienda, Precio: precio})
+	}
+	return carritoUltimo
+
+}
+
+/*
+func calcPreciosBulkv2(idsProductos []int, idTiendas []string) []Carrito {
 	var (
 		carritoMap   = map[string]int{}
 		someMapMutex = sync.RWMutex{}
@@ -83,7 +100,7 @@ func calcPreciosBulk(idsProductos []int, idTiendas []string) []Carrito {
 	}
 	return carritoUltimo
 }
-
+*/
 // CalcularPrecios recibe un arreglo de los IDs de productos y calcula,
 // para cada super mercado, cuanto saldria comprar esos productos ahi.
 // Retorna un slice de carritos, donde se tiene uno para cada super mercado.
